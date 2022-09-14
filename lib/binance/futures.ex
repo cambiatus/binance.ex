@@ -95,9 +95,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.old_trades_lookup_MARKET_DATA("BTCUSDT")
+      BinanceFutures.old_trades_lookup("BTCUSDT")
   """
-  def old_trades_lookup_MARKET_DATA(symbol) do
+  def old_trades_lookup(symbol) do
     HTTPClient.get_binance_unsigned(
       "/fapi/v1/historicalTrades",
       %{symbol: symbol},
@@ -562,9 +562,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.notional_and_leverage_brackets_USER_DATA(1663181938993)
+      BinanceFutures.notional_and_leverage_brackets(1663181938993)
   """
-  def notional_and_leverage_brackets_USER_DATA(timestamp \\ nil) do
+  def notional_and_leverage_brackets(timestamp \\ nil) do
     HTTPClient.get_binance(
       "/fapi/v1/leverageBracket",
       %{timestamp: timestamp},
@@ -579,9 +579,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.position_ADL_quantile_estimation_USER_DATA(1663181938993)
+      BinanceFutures.position_ADL_quantile_estimation(1663181938993)
   """
-  def position_ADL_quantile_estimation_USER_DATA(timestamp \\ nil) do
+  def position_ADL_quantile_estimation(timestamp \\ nil) do
     HTTPClient.get_binance(
       "/fapi/v1/adlQuantile",
       %{timestamp: timestamp},
@@ -596,9 +596,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.user_commission_rate_USER_DATA("BTCUSDT", 1663181938993)
+      BinanceFutures.user_commission_rate("BTCUSDT", 1663181938993)
   """
-  def user_commission_rate_USER_DATA(symbol, timestamp \\ nil) do
+  def user_commission_rate(symbol, timestamp \\ nil) do
     HTTPClient.get_binance(
       "/fapi/v1/commissionRate",
       %{symbol: symbol, timestamp: timestamp},
@@ -649,9 +649,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.new_order_TRADE("BTCUSDT", "BUY", "LIMIT", 1, 10, 1663181938993)
+      BinanceFutures.new_order("BTCUSDT", "BUY", "LIMIT", 1, 10, 1663181938993)
   """
-  def new_order_TRADE(symbol, side, type, quantity, price, timestamp \\ nil) do
+  def new_order(symbol, side, type, quantity, price, timestamp \\ nil) do
     HTTPClient.post_binance(
       "/fapi/v1/order",
       %{
@@ -707,9 +707,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.place_multiple_orders_TRADE([{type: "LIMIT", timeInForce: "GTC", symbol: "BTCUSDT", side: "BUY", price: "10001", quantity: "0.001"}], 1663181938993)
+      BinanceFutures.place_multiple_orders([{type: "LIMIT", timeInForce: "GTC", symbol: "BTCUSDT", side: "BUY", price: "10001", quantity: "0.001"}], 1663181938993)
   """
-  def place_multiple_orders_TRADE(batch_orders, timestamp \\ nil) do
+  def place_multiple_orders(batch_orders, timestamp \\ nil) do
     HTTPClient.post_binance(
       "/fapi/v1/batchOrders",
       %{batchOrders: batch_orders, timestamp: timestamp},
@@ -741,9 +741,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.auto_cancel_all_open_orders_TRADE("BTCUSDT", 1000, 1663181938993)
+      BinanceFutures.auto_cancel_all_open_orders("BTCUSDT", 1000, 1663181938993)
   """
-  def auto_cancel_all_open_orders_TRADE(symbol, countdown_time, timestamp \\ nil) do
+  def auto_cancel_all_open_orders(symbol, countdown_time, timestamp \\ nil) do
     HTTPClient.post_binance(
       "/fapi/v1/countdownCancelAll",
       %{symbol: symbol, countdownTime: countdown_time, timestamp: timestamp},
@@ -758,9 +758,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.current_all_open_orders_USER_DATA(1663181938993)
+      BinanceFutures.current_all_open_orders(1663181938993)
   """
-  def current_all_open_orders_USER_DATA(timestamp \\ nil) do
+  def current_all_open_orders(timestamp \\ nil) do
     HTTPClient.get_binance(
       "/fapi/v1/openOrders",
       %{timestamp: timestamp},
@@ -775,9 +775,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.cancel_multiple_orders_TRADE("BTCUSDT", ["my_id_1", "my_id_2"], 1663181938993)
+      BinanceFutures.cancel_multiple_orders("BTCUSDT", ["my_id_1", "my_id_2"], 1663181938993)
   """
-  def cancel_multiple_orders_TRADE(symbol, orig_client_order_id_list, timestamp \\ nil) do
+  def cancel_multiple_orders(symbol, orig_client_order_id_list, timestamp \\ nil) do
     HTTPClient.delete_binance(
       "/fapi/v1/batchOrders",
       %{symbol: symbol, origClientOrderIdList: orig_client_order_id_list, timestamp: timestamp},
@@ -792,9 +792,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.query_current_open_order_USER_DATA("BTCUSDT", 1663181938993)
+      BinanceFutures.query_current_open_order("BTCUSDT", 1663181938993)
   """
-  def query_current_open_order_USER_DATA(symbol, timestamp \\ nil) do
+  def query_current_open_order(symbol, timestamp \\ nil) do
     HTTPClient.get_binance(
       "/fapi/v1/openOrder",
       %{symbol: symbol, timestamp: timestamp},
@@ -809,9 +809,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.user_force_orders_USER_DATA(1663181938993)
+      BinanceFutures.user_force_orders(1663181938993)
   """
-  def user_force_orders_USER_DATA(timestamp \\ nil) do
+  def user_force_orders(timestamp \\ nil) do
     HTTPClient.get_binance(
       "/fapi/v1/forceOrders",
       %{timestamp: timestamp},
@@ -877,9 +877,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.change_position_modetrade("true", 1663181938993)
+      BinanceFutures.change_position_mode("true", 1663181938993)
   """
-  def change_position_modetrade(dual_side_position, timestamp \\ nil) do
+  def change_position_mode(dual_side_position, timestamp \\ nil) do
     HTTPClient.post_binance(
       "/fapi/v1/positionSide/dual",
       %{dualSidePosition: dual_side_position, timestamp: timestamp},
@@ -945,9 +945,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.get_current_position_modeuser_data(1663181938993)
+      BinanceFutures.get_current_position_mode(1663181938993)
   """
-  def get_current_position_modeuser_data(timestamp \\ nil) do
+  def get_current_position_mode(timestamp \\ nil) do
     HTTPClient.get_binance(
       "/fapi/v1/positionSide/dual",
       %{timestamp: timestamp},
@@ -962,9 +962,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.user_API_trading_quantitative_rules_indicators_USER_DATA(1663181938993)
+      BinanceFutures.user_API_trading_quantitative_rules_indicators(1663181938993)
   """
-  def user_API_trading_quantitative_rules_indicators_USER_DATA(timestamp \\ nil) do
+  def user_API_trading_quantitative_rules_indicators(timestamp \\ nil) do
     HTTPClient.get_binance(
       "/fapi/v1/apiTradingStatus",
       %{timestamp: timestamp},
