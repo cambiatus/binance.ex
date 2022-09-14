@@ -63,7 +63,15 @@ defmodule Binance.Rest.HTTPClient do
       :ok ->
         headers = [{"X-MBX-APIKEY", options.api_key}]
         receive_window = 5000
-        timestamp = DateTime.utc_now() |> DateTime.to_unix(:millisecond)
+
+        timestamp =
+          case Map.get(params, :timestamp) do
+            nil ->
+              DateTime.utc_now() |> DateTime.to_unix(:millisecond)
+
+            timestamp ->
+              timestamp
+          end
 
         params =
           Map.merge(params, %{
