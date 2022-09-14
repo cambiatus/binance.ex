@@ -17,14 +17,14 @@ defmodule Binance.Rest.HTTPClient do
   def delete_binance_unsigned(endpoint, params \\ %{}, options \\ []),
     do: make_unsigned_request(endpoint, :delete, params, options)
 
-  def post_binance(endpoint, body, params \\ %{}, options \\ []),
-    do: make_signed_request(endpoint, :post, params, options, body)
+  def post_binance(endpoint, params \\ %{}, options \\ []),
+    do: make_signed_request(endpoint, :post, params, options, "")
 
-  def post_binance_unsigned(endpoint, body, params \\ %{}, options \\ []),
-    do: make_unsigned_request(endpoint, :post, params, options, body)
+  def post_binance_unsigned(endpoint, params \\ %{}, options \\ []),
+    do: make_unsigned_request(endpoint, :post, params, options, "")
 
-  def put_binance_unsigned(endpoint, body, params \\ %{}, options \\ []),
-    do: make_unsigned_request(endpoint, :put, params, options, body)
+  def put_binance_unsigned(endpoint, params \\ %{}, options \\ []),
+    do: make_unsigned_request(endpoint, :put, params, options, "")
 
   defp make_unsigned_request(endpoint, method, params, options, body \\ nil) do
     options =

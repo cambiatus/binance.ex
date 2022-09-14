@@ -277,7 +277,7 @@ defmodule Binance do
 
   """
   def create_listen_key() do
-    case HTTPClient.post_binance_unsigned("/api/v3/userDataStream", "") do
+    case HTTPClient.post_binance_unsigned("/api/v3/userDataStream") do
       {:ok, data} -> {:ok, Binance.DataStream.new(data)}
       error -> error
     end
@@ -293,7 +293,7 @@ defmodule Binance do
 
   """
   def keep_alive_listen_key(key) do
-    case HTTPClient.put_binance_unsigned("/api/v3/userDataStream", "listenKey=#{key}") do
+    case HTTPClient.put_binance_unsigned("/api/v3/userDataStream", %{listenKey: key}) do
       {:ok, data} -> {:ok, data}
       error -> error
     end
@@ -377,7 +377,7 @@ defmodule Binance do
       |> Map.merge(unless(is_nil(time_in_force), do: %{timeInForce: time_in_force}, else: %{}))
       |> Map.merge(unless(is_nil(price), do: %{price: format_price(price)}, else: %{}))
 
-    case HTTPClient.post_binance("/api/v3/order", "", arguments) do
+    case HTTPClient.post_binance("/api/v3/order", arguments) do
       {:ok, %{"code" => code, "msg" => msg}} ->
         {:error, {:binance_error, %{code: code, msg: msg}}}
 
