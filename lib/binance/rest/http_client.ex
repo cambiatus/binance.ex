@@ -1,63 +1,57 @@
 defmodule Binance.Rest.HTTPClient do
   @endpoint Application.get_env(:binance, :end_point, "https://api.binance.com")
 
-  def get_binance(url, headers \\ []) do
-    HTTPoison.get("#{@endpoint}#{url}", headers)
-    |> parse_response
-  end
+  def get_binance(
+        endpoint,
+        params \\ %{},
+        secret_key \\ Application.get_env(:binance, :secret_key),
+        api_key \\ Application.get_env(:binance, :api_key),
+        base_url \\ @endpoint
+      ),
+      do: make_request(base_url, endpoint, :get, params, secret_key, api_key)
 
-  def delete_binance(url, headers \\ []) do
-    HTTPoison.delete("#{@endpoint}#{url}", headers)
-    |> parse_response
-  end
+  def delete_binance(
+        endpoint,
+        params \\ %{},
+        secret_key \\ Application.get_env(:binance, :secret_key),
+        api_key \\ Application.get_env(:binance, :api_key),
+        base_url \\ @endpoint
+      ),
+      do: make_request(base_url, endpoint, :delete, params, secret_key, api_key)
 
-  def get_binance(url, params, secret_key, api_key) do
-    case prepare_request(url, params, secret_key, api_key) do
-      {:error, _} = error ->
-        error
-
-      {:ok, url, headers} ->
-        get_binance(url, headers)
-    end
-  end
-
-  def delete_binance(url, params, secret_key, api_key) do
-    case prepare_request(url, params, secret_key, api_key) do
-      {:error, _} = error ->
-        error
-
-      {:ok, url, headers} ->
-        delete_binance(url, headers)
-    end
-  end
-
-  defp prepare_request(url, params, secret_key, api_key) do
+  defp make_request(
+         base_url,
+         endpoint,
+         method,
+         params,
+         secret_key,
+         api_key
+       ) do
     case validate_credentials(secret_key, api_key) do
       {:error, _} = error ->
         error
 
-      _ ->
+      :ok ->
         headers = [{"X-MBX-APIKEY", api_key}]
         receive_window = 5000
-        ts = DateTime.utc_now() |> DateTime.to_unix(:millisecond)
+        timestamp = DateTime.utc_now() |> DateTime.to_unix()
 
         params =
           Map.merge(params, %{
-            timestamp: ts,
+            timestamp: timestamp,
             recvWindow: receive_window
           })
 
         argument_string = URI.encode_query(params)
 
         signature =
-          generate_signature(
-            :sha256,
-            secret_key,
-            argument_string
-          )
+          generate_signature(:sha256, secret_key, argument_string)
           |> Base.encode16()
 
-        {:ok, "#{url}?#{argument_string}&signature=#{signature}", headers}
+        full_url = "#{base_url}#{endpoint}?#{argument_string}&signature=#{signature}"
+
+        apply(HTTPoison, method, [full_url, headers])
+        |> parse_response
     end
   end
 
@@ -183,11 +177,12 @@ defmodule Binance.Rest.HTTPClient do
     |> Enum.join("&")
   end
 
-    # TODO: remove when we require OTP 22.1
-    if Code.ensure_loaded?(:crypto) and function_exported?(:crypto, :mac, 4) do
-      defp generate_signature(digest, key, argument_string), do: :crypto.mac(:hmac, digest, key, argument_string)
-    else
-      defp generate_signature(digest, key, argument_string), do: :crypto.hmac(digest, key, argument_string)
-    end
-
+  # TODO: remove when we require OTP 22.1
+  if Code.ensure_loaded?(:crypto) and function_exported?(:crypto, :mac, 4) do
+    defp generate_signature(digest, key, argument_string),
+      do: :crypto.mac(:hmac, digest, key, argument_string)
+  else
+    defp generate_signature(digest, key, argument_string),
+      do: :crypto.hmac(digest, key, argument_string)
+  end
 end
