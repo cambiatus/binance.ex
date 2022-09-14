@@ -22,14 +22,14 @@ defmodule Binance do
 
   """
   def get_server_time() do
-    case HTTPClient.get_binance("/api/v3/time") do
+    case HTTPClient.get_binance_unsigned("/api/v3/time") do
       {:ok, %{"serverTime" => time}} -> {:ok, time}
       err -> err
     end
   end
 
   def get_exchange_info() do
-    case HTTPClient.get_binance("/api/v3/exchangeInfo") do
+    case HTTPClient.get_binance_unsigned("/api/v3/exchangeInfo") do
       {:ok, data} -> {:ok, Binance.ExchangeInfo.new(data)}
       err -> err
     end
@@ -98,7 +98,7 @@ defmodule Binance do
   ```
   """
   def get_all_prices() do
-    case HTTPClient.get_binance("/api/v3/ticker/price") do
+    case HTTPClient.get_binance_unsigned("/api/v3/ticker/price") do
       {:ok, data} ->
         {:ok, Enum.map(data, &Binance.SymbolPrice.new(&1))}
 
@@ -134,7 +134,7 @@ defmodule Binance do
   end
 
   def get_ticker(symbol) when is_binary(symbol) do
-    case HTTPClient.get_binance("/api/v3/ticker/24hr?symbol=#{symbol}") do
+    case HTTPClient.get_binance_unsigned("/api/v3/ticker/24hr", %{symbol: symbol}) do
       {:ok, data} -> {:ok, Binance.Ticker.new(data)}
       err -> err
     end
@@ -171,9 +171,11 @@ defmodule Binance do
   """
 
   def get_klines(symbol, interval, limit \\ 500) when is_binary(symbol) do
-    case HTTPClient.get_binance(
-           "/api/v3/klines?symbol=#{symbol}&interval=#{interval}&limit=#{limit}"
-         ) do
+    case HTTPClient.get_binance_unsigned("/api/v3/klines", %{
+           symbol: symbol,
+           interval: interval,
+           limit: limit
+         }) do
       {:ok, data} ->
         {:ok, Enum.map(data, &Binance.Kline.new(&1))}
 
@@ -211,7 +213,7 @@ defmodule Binance do
   ```
   """
   def get_depth(symbol, limit) do
-    case HTTPClient.get_binance("/api/v3/depth?symbol=#{symbol}&limit=#{limit}") do
+    case HTTPClient.get_binance_unsigned("/api/v3/depth", %{symbol: symbol, limit: limit}) do
       {:ok, data} -> {:ok, Binance.OrderBook.new(data)}
       err -> err
     end
@@ -508,6 +510,10 @@ defmodule Binance do
          }
        }) do
     {:error, %Binance.InsufficientBalanceError{reason: reason}}
+  end
+
+  defp parse_order_response({:error, error}) do
+    {:error, error}
   end
 
   # Misc
