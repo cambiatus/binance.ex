@@ -6,10 +6,9 @@ defmodule Binance.Futures do
 
   Test connectivity to the Rest API.
 
-    ## Examples
+  ## Examples
 
       BinanceFutures.test_connectivity()
-
   """
   def test_connectivity() do
     HTTPClient.get_binance_unsigned(
@@ -27,7 +26,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.check_server_time()
-
   """
   def check_server_time() do
     HTTPClient.get_binance_unsigned(
@@ -45,7 +43,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.exchange_information()
-
   """
   def exchange_information() do
     HTTPClient.get_binance_unsigned(
@@ -63,7 +60,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.order_book("BTCUSDT")
-
   """
   def order_book(symbol) do
     HTTPClient.get_binance_unsigned(
@@ -81,7 +77,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.recent_trades_list("BTCUSDT")
-
   """
   def recent_trades_list(symbol) do
     HTTPClient.get_binance_unsigned(
@@ -98,10 +93,9 @@ defmodule Binance.Futures do
 
   This endpoint need your API key only, not the secret key.
 
-    ## Examples
+  ## Examples
 
       BinanceFutures.old_trades_lookup_MARKET_DATA("BTCUSDT")
-
   """
   def old_trades_lookup_MARKET_DATA(symbol) do
     HTTPClient.get_binance_unsigned(
@@ -119,7 +113,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.compressed_aggregate_trades_list("BTCUSDT")
-
   """
   def compressed_aggregate_trades_list(symbol) do
     HTTPClient.get_binance_unsigned(
@@ -136,10 +129,9 @@ defmodule Binance.Futures do
 
   Kline/candlestick bars for a symbol. Klines are uniquely identified by their open time.
 
-    ## Examples
+  ## Examples
 
       BinanceFutures.kline_candlestick_data("BTCUSDT", "1h")
-
   """
   def kline_candlestick_data(symbol, interval) do
     HTTPClient.get_binance_unsigned(
@@ -156,10 +148,9 @@ defmodule Binance.Futures do
 
   Kline/candlestick bars for the index price of a pair. Klines are uniquely identified by their open time.
 
-    ## Examples
+  ## Examples
 
       BinanceFutures.index_price_kline_candlestick_data("BTCUSDT", "1h")
-
   """
   def index_price_kline_candlestick_data(pair, interval) do
     HTTPClient.get_binance_unsigned(
@@ -176,10 +167,9 @@ defmodule Binance.Futures do
 
   Kline/candlestick bars for a symbol. Klines are uniquely identified by their open time.
 
-    ## Examples
+  ## Examples
 
       BinanceFutures.continuous_contract_kline_candlestick_data("BTCUSDT", PERPETUAL, "1h")
-
   """
   def continuous_contract_kline_candlestick_data(pair, contract_type, interval) do
     HTTPClient.get_binance_unsigned(
@@ -198,10 +188,9 @@ defmodule Binance.Futures do
 
   Weight: 1
 
-    ## Examples
+  ## Examples
 
       BinanceFutures.get_funding_rate_history()
-
   """
   def get_funding_rate_history() do
     HTTPClient.get_binance_unsigned(
@@ -220,10 +209,9 @@ defmodule Binance.Futures do
 
   Weight: 1
 
-    ## Examples
+  ## Examples
 
       BinanceFutures.mark_price()
-
   """
   def mark_price() do
     HTTPClient.get_binance_unsigned(
@@ -240,10 +228,9 @@ defmodule Binance.Futures do
 
   Kline/candlestick bars for the mark price of a symbol. Klines are uniquely identified by their open time.
 
-    ## Examples
+  ## Examples
 
       BinanceFutures.mark_price_kline_candlestick_data("BTCUSDT", "1h")
-
   """
   def mark_price_kline_candlestick_data(symbol, interval) do
     HTTPClient.get_binance_unsigned(
@@ -260,10 +247,9 @@ defmodule Binance.Futures do
 
   Best price/qty on the order book for a symbol or symbols.
 
-    ## Examples
+  ## Examples
 
       BinanceFutures.symbol_order_book_ticker()
-
   """
   def symbol_order_book_ticker() do
     HTTPClient.get_binance_unsigned(
@@ -288,10 +274,9 @@ defmodule Binance.Futures do
 
   40 when the symbol parameter is omitted
 
-    ## Examples
+  ## Examples
 
       BinanceFutures.ticker_price_change_statistics()
-
   """
   def ticker_price_change_statistics() do
     HTTPClient.get_binance_unsigned(
@@ -308,10 +293,9 @@ defmodule Binance.Futures do
 
   Latest price for a symbol or symbols.
 
-    ## Examples
+  ## Examples
 
       BinanceFutures.symbol_price_ticker()
-
   """
   def symbol_price_ticker() do
     HTTPClient.get_binance_unsigned(
@@ -328,10 +312,9 @@ defmodule Binance.Futures do
 
   Get present open interest of a specific symbol.
 
-    ## Examples
+  ## Examples
 
       BinanceFutures.open_interest("BTCUSDT")
-
   """
   def open_interest(symbol) do
     HTTPClient.get_binance_unsigned(
@@ -348,10 +331,9 @@ defmodule Binance.Futures do
 
   Get present open interest of a specific symbol.
 
-    ## Examples
+  ## Examples
 
       BinanceFutures.top_trader_long_short_ratio_accounts("BTCUSDT", "1h")
-
   """
   def top_trader_long_short_ratio_accounts(symbol, period) do
     HTTPClient.get_binance_unsigned(
@@ -368,10 +350,9 @@ defmodule Binance.Futures do
 
   Get present open interest of a specific symbol.
 
-    ## Examples
+  ## Examples
 
       BinanceFutures.open_interest_statistics("BTCUSDT", "1h")
-
   """
   def open_interest_statistics(symbol, period) do
     HTTPClient.get_binance_unsigned(
@@ -388,10 +369,9 @@ defmodule Binance.Futures do
 
   Get present open interest of a specific symbol.
 
-    ## Examples
+  ## Examples
 
       BinanceFutures.top_trader_long_short_ratio_positions("BTCUSDT", "1h")
-
   """
   def top_trader_long_short_ratio_positions(symbol, period) do
     HTTPClient.get_binance_unsigned(
@@ -409,7 +389,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.taker_buy_sell_volume("BTCUSDT", "1h")
-
   """
   def taker_buy_sell_volume(symbol, period) do
     HTTPClient.get_binance_unsigned(
@@ -426,10 +405,9 @@ defmodule Binance.Futures do
 
   Get present open interest of a specific symbol.
 
-    ## Examples
+  ## Examples
 
       BinanceFutures.long_short_ratio("BTCUSDT", "1h")
-
   """
   def long_short_ratio(symbol, period) do
     HTTPClient.get_binance_unsigned(
@@ -447,7 +425,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.historical_BLVT_NAV_kline_candlestick("BTCUSDT", "1h")
-
   """
   def historical_BLVT_NAV_kline_candlestick(symbol, interval) do
     HTTPClient.get_binance_unsigned(
@@ -465,7 +442,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.composite_index_symbol_information()
-
   """
   def composite_index_symbol_information() do
     HTTPClient.get_binance_unsigned(
@@ -483,7 +459,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.multi_assets_mode_asset_index()
-
   """
   def multi_assets_mode_asset_index() do
     HTTPClient.get_binance_unsigned(
@@ -501,7 +476,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.account_information(1663181938993)
-
   """
   def account_information(timestamp \\ nil) do
     HTTPClient.get_binance(
@@ -519,7 +493,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.get_income_history(1663181938993)
-
   """
   def get_income_history(timestamp \\ nil) do
     HTTPClient.get_binance(
@@ -537,7 +510,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.position_information(1663181938993)
-
   """
   def position_information(timestamp \\ nil) do
     HTTPClient.get_binance(
@@ -555,7 +527,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.account_trade_list("BTCUSDT", 1663181938993)
-
   """
   def account_trade_list(symbol, timestamp \\ nil) do
     HTTPClient.get_binance(
@@ -573,7 +544,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.future_account_balance(1663181938993)
-
   """
   def future_account_balance(timestamp \\ nil) do
     HTTPClient.get_binance(
@@ -590,10 +560,9 @@ defmodule Binance.Futures do
 
   Get present open interest of a specific symbol.
 
-    ## Examples
+  ## Examples
 
       BinanceFutures.notional_and_leverage_brackets_USER_DATA(1663181938993)
-
   """
   def notional_and_leverage_brackets_USER_DATA(timestamp \\ nil) do
     HTTPClient.get_binance(
@@ -611,7 +580,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.position_ADL_quantile_estimation_USER_DATA(1663181938993)
-
   """
   def position_ADL_quantile_estimation_USER_DATA(timestamp \\ nil) do
     HTTPClient.get_binance(
@@ -629,7 +597,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.user_commission_rate_USER_DATA("BTCUSDT", 1663181938993)
-
   """
   def user_commission_rate_USER_DATA(symbol, timestamp \\ nil) do
     HTTPClient.get_binance(
@@ -647,7 +614,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.change_multi_assets_mode("true", 1663181938993)
-
   """
   def change_multi_assets_mode(multi_assets_margin, timestamp \\ nil) do
     HTTPClient.post_binance(
@@ -665,7 +631,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.get_current_multi_assets_mode(1663181938993)
-
   """
   def get_current_multi_assets_mode(timestamp \\ nil) do
     HTTPClient.get_binance(
@@ -682,10 +647,9 @@ defmodule Binance.Futures do
 
   https://binance-docs.github.io/apidocs/futures/en/#new-order-trade
 
-    ## Examples
+  ## Examples
 
       BinanceFutures.new_order_TRADE("BTCUSDT", "BUY", "LIMIT", 1, 10, 1663181938993)
-
   """
   def new_order_TRADE(symbol, side, type, quantity, price, timestamp \\ nil) do
     HTTPClient.post_binance(
@@ -710,7 +674,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.query_order("BTCUSDT", 1663181938993)
-
   """
   def query_order(symbol, timestamp \\ nil) do
     HTTPClient.get_binance(
@@ -728,7 +691,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.cancel_order("BTCUSDT", 1663181938993)
-
   """
   def cancel_order(symbol, timestamp \\ nil) do
     HTTPClient.delete_binance(
@@ -746,7 +708,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.place_multiple_orders_TRADE([{type: "LIMIT", timeInForce: "GTC", symbol: "BTCUSDT", side: "BUY", price: "10001", quantity: "0.001"}], 1663181938993)
-
   """
   def place_multiple_orders_TRADE(batch_orders, timestamp \\ nil) do
     HTTPClient.post_binance(
@@ -764,7 +725,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.cancel_all_open_orders("BTCUSDT", 1663181938993)
-
   """
   def cancel_all_open_orders(symbol, timestamp \\ nil) do
     HTTPClient.delete_binance(
@@ -782,7 +742,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.auto_cancel_all_open_orders_TRADE("BTCUSDT", 1000, 1663181938993)
-
   """
   def auto_cancel_all_open_orders_TRADE(symbol, countdown_time, timestamp \\ nil) do
     HTTPClient.post_binance(
@@ -800,7 +759,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.current_all_open_orders_USER_DATA(1663181938993)
-
   """
   def current_all_open_orders_USER_DATA(timestamp \\ nil) do
     HTTPClient.get_binance(
@@ -818,7 +776,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.cancel_multiple_orders_TRADE("BTCUSDT", ["my_id_1", "my_id_2"], 1663181938993)
-
   """
   def cancel_multiple_orders_TRADE(symbol, orig_client_order_id_list, timestamp \\ nil) do
     HTTPClient.delete_binance(
@@ -836,7 +793,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.query_current_open_order_USER_DATA("BTCUSDT", 1663181938993)
-
   """
   def query_current_open_order_USER_DATA(symbol, timestamp \\ nil) do
     HTTPClient.get_binance(
@@ -854,7 +810,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.user_force_orders_USER_DATA(1663181938993)
-
   """
   def user_force_orders_USER_DATA(timestamp \\ nil) do
     HTTPClient.get_binance(
@@ -872,7 +827,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.all_orders("BTCUSDT", 1663181938993)
-
   """
   def all_orders(symbol, timestamp \\ nil) do
     HTTPClient.get_binance(
@@ -890,7 +844,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.change_initial_leverage("BTCUSDT", 10, 1663181938993)
-
   """
   def change_initial_leverage(symbol, leverage, timestamp \\ nil) do
     HTTPClient.post_binance(
@@ -908,7 +861,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.change_margin_type("BTCUSDT", "ISOLATED", 1663181938993)
-
   """
   def change_margin_type(symbol, margin_type, timestamp \\ nil) do
     HTTPClient.post_binance(
@@ -926,7 +878,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.change_position_modetrade("true", 1663181938993)
-
   """
   def change_position_modetrade(dual_side_position, timestamp \\ nil) do
     HTTPClient.post_binance(
@@ -944,7 +895,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.get_postion_margin_change_history("BTCUSDT", 1663181938993)
-
   """
   def get_postion_margin_change_history(symbol, timestamp \\ nil) do
     HTTPClient.get_binance(
@@ -962,7 +912,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.modify_isolated_position_margin("BTCUSDT", , "LIMIT", 1663181938993)
-
   """
   def modify_isolated_position_margin(symbol, amount, type, timestamp \\ nil) do
     HTTPClient.post_binance(
@@ -980,7 +929,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.change_multi_assets_mode_TRADE("true", 1663181938993)
-
   """
   def change_multi_assets_mode_TRADE(multi_assets_margin, timestamp \\ nil) do
     HTTPClient.post_binance(
@@ -998,7 +946,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.get_current_position_modeuser_data(1663181938993)
-
   """
   def get_current_position_modeuser_data(timestamp \\ nil) do
     HTTPClient.get_binance(
@@ -1016,7 +963,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.user_API_trading_quantitative_rules_indicators_USER_DATA(1663181938993)
-
   """
   def user_API_trading_quantitative_rules_indicators_USER_DATA(timestamp \\ nil) do
     HTTPClient.get_binance(
@@ -1034,7 +980,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.get_current_multi_assets_mode_USER_DATA(1663181938993)
-
   """
   def get_current_multi_assets_mode_USER_DATA(timestamp \\ nil) do
     HTTPClient.get_binance(
@@ -1052,7 +997,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.create_new_listen_key()
-
   """
   def create_new_listen_key() do
     HTTPClient.post_binance_unsigned(
@@ -1070,7 +1014,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.renew_listen_key()
-
   """
   def renew_listen_key() do
     HTTPClient.put_binance_unsigned(
@@ -1088,7 +1031,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.delete_listen_key()
-
   """
   def delete_listen_key() do
     HTTPClient.delete_binance_unsigned(
@@ -1106,7 +1048,6 @@ defmodule Binance.Futures do
   ## Examples
 
       BinanceFutures.portfolio_margin_exchange_information()
-
   """
   def portfolio_margin_exchange_information() do
     HTTPClient.get_binance_unsigned(
