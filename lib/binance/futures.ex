@@ -8,9 +8,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.test_connectivity()
+      BinanceFutures.ping()
   """
-  def test_connectivity() do
+  def ping() do
     case HTTPClient.get_binance_unsigned(
            "/fapi/v1/ping/",
            %{},
@@ -28,9 +28,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.check_server_time()
+      BinanceFutures.get_server_time()
   """
-  def check_server_time() do
+  def get_server_time() do
     case HTTPClient.get_binance_unsigned(
            "/fapi/v1/time",
            %{},
@@ -48,9 +48,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.exchange_information()
+      BinanceFutures.get_exchange_info()
   """
-  def exchange_information() do
+  def get_exchange_info() do
     case HTTPClient.get_binance_unsigned(
            "/fapi/v1/exchangeInfo",
            %{},
@@ -68,12 +68,12 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.order_book("BTCUSDT")
+      BinanceFutures.get_order_book("BTCUSDT")
   """
-  def order_book(symbol) do
+  def get_order_book(symbol, limit \\ 500) do
     case HTTPClient.get_binance_unsigned(
            "/fapi/v1/depth",
-           %{symbol: symbol},
+           %{symbol: symbol, limit: limit},
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -88,12 +88,12 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.recent_trades_list("BTCUSDT")
+      BinanceFutures.get_recent_trades_list("BTCUSDT")
   """
-  def recent_trades_list(symbol) do
+  def get_recent_trades_list(symbol, limit \\ 500) do
     case HTTPClient.get_binance_unsigned(
            "/fapi/v1/trades",
-           %{symbol: symbol},
+           %{symbol: symbol, limit: limit},
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -110,12 +110,19 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.old_trades_lookup("BTCUSDT")
+      BinanceFutures.get_historical_trades("BTCUSDT")
   """
-  def old_trades_lookup(symbol) do
+  def get_historical_trades(symbol, limit \\ 500, from_id \\ nil) do
+    arguments =
+      %{
+        symbol: symbol,
+        limit: limit
+      }
+      |> with_optional_arg("fromId", from_id)
+
     case HTTPClient.get_binance_unsigned(
            "/fapi/v1/historicalTrades",
-           %{symbol: symbol},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -130,12 +137,27 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.compressed_aggregate_trades_list("BTCUSDT")
+      BinanceFutures.get_compressed_aggregate_trades_list("BTCUSDT")
   """
-  def compressed_aggregate_trades_list(symbol) do
+  def get_compressed_aggregate_trades_list(
+        symbol,
+        limit \\ 500,
+        from_id \\ nil,
+        start_time \\ nil,
+        end_time \\ nil
+      ) do
+    arguments =
+      %{symbol: symbol}
+      |> with_optional_args([
+        {"limit", limit},
+        {"fromId", from_id},
+        {"startTime", start_time},
+        {"endTime", end_time}
+      ])
+
     case HTTPClient.get_binance_unsigned(
            "/fapi/v1/aggTrades",
-           %{symbol: symbol},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -152,12 +174,26 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.kline_candlestick_data("BTCUSDT", "1h")
+      BinanceFutures.get_kline_candlestick_data("BTCUSDT", "1h")
   """
-  def kline_candlestick_data(symbol, interval) do
+  def get_kline_candlestick_data(
+        symbol,
+        interval,
+        limit \\ nil,
+        start_time \\ nil,
+        end_time \\ nil
+      ) do
+    arguments =
+      %{symbol: symbol, interval: interval}
+      |> with_optional_args([
+        {"limit", limit},
+        {"startTime", start_time},
+        {"endTime", end_time}
+      ])
+
     HTTPClient.get_binance_unsigned(
       "/fapi/v1/klines",
-      %{symbol: symbol, interval: interval},
+      arguments,
       api_key: Application.get_env(:binance, :futures_api_key),
       secret_key: Application.get_env(:binance, :futures_secret_key),
       base_url: Application.get_env(:binance, :futures_end_point)
@@ -171,12 +207,26 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.index_price_kline_candlestick_data("BTCUSDT", "1h")
+      BinanceFutures.get_index_price_kline_candlestick_data("BTCUSDT", "1h")
   """
-  def index_price_kline_candlestick_data(pair, interval) do
+  def get_index_price_kline_candlestick_data(
+        symbol,
+        interval,
+        limit \\ 500,
+        start_time \\ nil,
+        end_time \\ nil
+      ) do
+    arguments =
+      %{pair: symbol, interval: interval}
+      |> with_optional_args([
+        {"limit", limit},
+        {"startTime", start_time},
+        {"endTime", end_time}
+      ])
+
     HTTPClient.get_binance_unsigned(
       "/fapi/v1/indexPriceKlines",
-      %{pair: pair, interval: interval},
+      arguments,
       api_key: Application.get_env(:binance, :futures_api_key),
       secret_key: Application.get_env(:binance, :futures_secret_key),
       base_url: Application.get_env(:binance, :futures_end_point)
@@ -190,12 +240,27 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.continuous_contract_kline_candlestick_data("BTCUSDT", "PERPETUAL", "1h")
+      BinanceFutures.get_continuous_contract_kline_candlestick_data("BTCUSDT", "PERPETUAL", "1h")
   """
-  def continuous_contract_kline_candlestick_data(pair, contract_type, interval) do
+  def get_continuous_contract_kline_candlestick_data(
+        symbol,
+        contract_type,
+        interval,
+        limit \\ 500,
+        start_time \\ nil,
+        end_time \\ nil
+      ) do
+    arguments =
+      %{pair: symbol, contractType: contract_type, interval: interval}
+      |> with_optional_args([
+        {"limit", limit},
+        {"startTime", start_time},
+        {"endTime", end_time}
+      ])
+
     HTTPClient.get_binance_unsigned(
       "/fapi/v1/continuousKlines",
-      %{pair: pair, contractType: contract_type, interval: interval},
+      arguments,
       api_key: Application.get_env(:binance, :futures_api_key),
       secret_key: Application.get_env(:binance, :futures_secret_key),
       base_url: Application.get_env(:binance, :futures_end_point)
@@ -213,10 +278,19 @@ defmodule Binance.Futures do
 
       BinanceFutures.get_funding_rate_history()
   """
-  def get_funding_rate_history() do
+  def get_funding_rate_history(symbol \\ nil, limit \\ 100, start_time \\ nil, end_time \\ nil) do
+    arguments =
+      %{}
+      |> with_optional_args([
+        {"symbol", symbol},
+        {"limit", limit},
+        {"startTime", start_time},
+        {"endTime", end_time}
+      ])
+
     case HTTPClient.get_binance_unsigned(
            "/fapi/v1/fundingRate",
-           %{},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -238,12 +312,16 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.mark_price()
+      BinanceFutures.get_mark_price()
   """
-  def mark_price() do
+  def get_mark_price(symbol \\ nil) do
+    arguments =
+      %{}
+      |> with_optional_arg("symbol", symbol)
+
     case HTTPClient.get_binance_unsigned(
            "/fapi/v1/premiumIndex",
-           %{},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -261,12 +339,26 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.mark_price_kline_candlestick_data("BTCUSDT", "1h")
+      BinanceFutures.get_mark_price_kline_candlestick_data("BTCUSDT", "1h")
   """
-  def mark_price_kline_candlestick_data(symbol, interval) do
+  def get_mark_price_kline_candlestick_data(
+        symbol,
+        interval,
+        limit \\ 500,
+        start_time \\ nil,
+        end_time \\ nil
+      ) do
+    arguments =
+      %{symbol: symbol, interval: interval}
+      |> with_optional_args([
+        {"limit", limit},
+        {"startTime", start_time},
+        {"endTime", end_time}
+      ])
+
     HTTPClient.get_binance_unsigned(
       "/fapi/v1/markPriceKlines",
-      %{symbol: symbol, interval: interval},
+      arguments,
       api_key: Application.get_env(:binance, :futures_api_key),
       secret_key: Application.get_env(:binance, :futures_secret_key),
       base_url: Application.get_env(:binance, :futures_end_point)
@@ -280,12 +372,16 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.symbol_order_book_ticker()
+      BinanceFutures.get_symbol_order_book_ticker()
   """
-  def symbol_order_book_ticker() do
+  def get_symbol_order_book_ticker(symbol \\ nil) do
+    arguments =
+      %{}
+      |> with_optional_arg("symbol", symbol)
+
     case HTTPClient.get_binance_unsigned(
            "/fapi/v1/ticker/bookTicker",
-           %{},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -316,12 +412,16 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.ticker_price_change_statistics()
+      BinanceFutures.get_ticker_price_change_statistics()
   """
-  def ticker_price_change_statistics() do
+  def get_ticker_price_change_statistics(symbol \\ nil) do
+    arguments =
+      %{}
+      |> with_optional_arg("symbol", symbol)
+
     case HTTPClient.get_binance_unsigned(
            "/fapi/v1/ticker/24hr",
-           %{},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -344,12 +444,16 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.symbol_price_ticker()
+      BinanceFutures.get_symbol_price_ticker()
   """
-  def symbol_price_ticker() do
+  def get_symbol_price_ticker(symbol \\ nil) do
+    arguments =
+      %{}
+      |> with_optional_arg("symbol", symbol)
+
     case HTTPClient.get_binance_unsigned(
            "/fapi/v1/ticker/price",
-           %{},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -372,9 +476,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.open_interest("BTCUSDT")
+      BinanceFutures.get_open_interest("BTCUSDT")
   """
-  def open_interest(symbol) do
+  def get_open_interest(symbol) do
     case HTTPClient.get_binance_unsigned(
            "/fapi/v1/openInterest",
            %{symbol: symbol},
@@ -394,12 +498,22 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.top_trader_long_short_ratio_accounts("BTCUSDT", "1h")
+      BinanceFutures.get_top_trader_long_short_ratio_accounts("BTCUSDT", "1h")
   """
-  def top_trader_long_short_ratio_accounts(symbol, period) do
+  def get_top_trader_long_short_ratio_accounts(
+        symbol,
+        period,
+        limit \\ 30,
+        start_time \\ nil,
+        end_time \\ nil
+      ) do
+    arguments =
+      %{symbol: symbol, period: period}
+      |> with_optional_args([{"limit", limit}, {"startTime", start_time}, {"endTime", end_time}])
+
     case HTTPClient.get_binance_unsigned(
            "/futures/data/topLongShortAccountRatio",
-           %{symbol: symbol, period: period},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -419,12 +533,26 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.open_interest_statistics("BTCUSDT", "1h")
+      BinanceFutures.get_open_interest_statistics("BTCUSDT", "1h")
   """
-  def open_interest_statistics(symbol, period) do
+  def get_open_interest_statistics(
+        symbol,
+        period,
+        limit \\ 30,
+        start_time \\ nil,
+        end_time \\ nil
+      ) do
+    arguments =
+      %{symbol: symbol, period: period}
+      |> with_optional_args([
+        {"limit", limit},
+        {"startTime", start_time},
+        {"endTime", end_time}
+      ])
+
     case HTTPClient.get_binance_unsigned(
            "/futures/data/openInterestHist",
-           %{symbol: symbol, period: period},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -441,12 +569,22 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.top_trader_long_short_ratio_positions("BTCUSDT", "1h")
+      BinanceFutures.get_top_trader_long_short_ratio_positions("BTCUSDT", "1h")
   """
-  def top_trader_long_short_ratio_positions(symbol, period) do
+  def get_top_trader_long_short_ratio_positions(
+        symbol,
+        period,
+        limit \\ 30,
+        start_time \\ nil,
+        end_time \\ nil
+      ) do
+    arguments =
+      %{symbol: symbol, period: period}
+      |> with_optional_args([{"limit", limit}, {"startTime", start_time}, {"endTime", end_time}])
+
     case HTTPClient.get_binance_unsigned(
            "/futures/data/topLongShortPositionRatio",
-           %{symbol: symbol, period: period},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -461,12 +599,16 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.taker_buy_sell_volume("BTCUSDT", "1h")
+      BinanceFutures.get_taker_buy_sell_volume("BTCUSDT", "1h")
   """
-  def taker_buy_sell_volume(symbol, period) do
+  def get_taker_buy_sell_volume(symbol, period, limit \\ 30, start_time \\ nil, end_time \\ nil) do
+    arguments =
+      %{symbol: symbol, period: period}
+      |> with_optional_args([{"limit", limit}, {"startTime", start_time}, {"endTime", end_time}])
+
     case HTTPClient.get_binance_unsigned(
            "/futures/data/takerlongshortRatio",
-           %{symbol: symbol, period: period},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -483,12 +625,16 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.long_short_ratio("BTCUSDT", "1h")
+      BinanceFutures.get_long_short_ratio("BTCUSDT", "1h")
   """
-  def long_short_ratio(symbol, period) do
+  def get_long_short_ratio(symbol, period, limit \\ 30, start_time \\ nil, end_time \\ nil) do
+    arguments =
+      %{symbol: symbol, period: period}
+      |> with_optional_args([{"limit", limit}, {"startTime", start_time}, {"endTime", end_time}])
+
     case HTTPClient.get_binance_unsigned(
            "/futures/data/globalLongShortAccountRatio",
-           %{symbol: symbol, period: period},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -503,12 +649,22 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.historical_BLVT_NAV_kline_candlestick("BTCUSDT", "1h")
+      BinanceFutures.get_historical_BLVT_NAV_kline_candlestick("BTCUSDT", "1h")
   """
-  def historical_BLVT_NAV_kline_candlestick(symbol, interval) do
+  def get_historical_BLVT_NAV_kline_candlestick(
+        symbol,
+        interval,
+        limit \\ 500,
+        start_time \\ nil,
+        end_time \\ nil
+      ) do
+    arguments =
+      %{symbol: symbol, interval: interval}
+      |> with_optional_args([{"limit", limit}, {"startTime", start_time}, {"endTime", end_time}])
+
     HTTPClient.get_binance_unsigned(
       "/fapi/v1/lvtKlines",
-      %{symbol: symbol, interval: interval},
+      arguments,
       api_key: Application.get_env(:binance, :futures_api_key),
       secret_key: Application.get_env(:binance, :futures_secret_key),
       base_url: Application.get_env(:binance, :futures_end_point)
@@ -520,12 +676,16 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.composite_index_symbol_information()
+      BinanceFutures.get_composite_index_symbol_information()
   """
-  def composite_index_symbol_information() do
+  def get_composite_index_symbol_information(symbol \\ nil) do
+    arguments =
+      %{}
+      |> with_optional_arg("symbol", symbol)
+
     case HTTPClient.get_binance_unsigned(
            "/fapi/v1/indexInfo",
-           %{},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -543,12 +703,16 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.multi_assets_mode_asset_index()
+      BinanceFutures.get_multi_assets_mode_asset_index()
   """
-  def multi_assets_mode_asset_index() do
+  def get_multi_assets_mode_asset_index(symbol \\ nil) do
+    arguments =
+      %{}
+      |> with_optional_arg("symbol", symbol)
+
     case HTTPClient.get_binance_unsigned(
            "/fapi/v1/assetIndex",
-           %{},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -569,12 +733,16 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.account_information(1663181938993)
+      BinanceFutures.get_account()
   """
-  def account_information(timestamp \\ nil) do
+  def get_account(receive_window \\ nil, timestamp \\ nil) do
+    arguments =
+      %{}
+      |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
+
     case HTTPClient.get_binance(
            "/fapi/v2/account",
-           %{timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -589,12 +757,32 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.get_income_history(1663181938993)
+      BinanceFutures.get_income_history()
   """
-  def get_income_history(timestamp \\ nil) do
+  def get_income_history(
+        symbol \\ nil,
+        income_type \\ nil,
+        limit \\ 100,
+        start_time \\ nil,
+        end_time \\ nil,
+        receive_window \\ nil,
+        timestamp \\ nil
+      ) do
+    arguments =
+      %{}
+      |> with_optional_args([
+        {"symbol", symbol},
+        {"incomeType", income_type},
+        {"limit", limit},
+        {"startTime", start_time},
+        {"endTime", end_time},
+        {"recvWindow", receive_window},
+        {"timestamp", timestamp}
+      ])
+
     case HTTPClient.get_binance(
            "/fapi/v1/income",
-           %{timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -612,12 +800,20 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.position_information(1663181938993)
+      BinanceFutures.get_position_information()
   """
-  def position_information(timestamp \\ nil) do
+  def get_position_information(symbol \\ nil, receive_window \\ nil, timestamp \\ nil) do
+    arguments =
+      %{}
+      |> with_optional_args([
+        {"symbol", symbol},
+        {"recvWindow", receive_window},
+        {"timestamp", timestamp}
+      ])
+
     case HTTPClient.get_binance(
            "/fapi/v2/positionRisk",
-           %{timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -638,12 +834,31 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.account_trade_list("BTCUSDT", 1663181938993)
+      BinanceFutures.get_account_trade_list("BTCUSDT")
   """
-  def account_trade_list(symbol, timestamp \\ nil) do
+  def get_account_trade_list(
+        symbol,
+        limit \\ 500,
+        start_time \\ nil,
+        end_time \\ nil,
+        from_id \\ nil,
+        receive_window \\ nil,
+        timestamp \\ nil
+      ) do
+    arguments =
+      %{symbol: symbol}
+      |> with_optional_args([
+        {"limit", limit},
+        {"startTime", start_time},
+        {"endTime", end_time},
+        {"fromId", from_id},
+        {"recvWindow", receive_window},
+        {"timestamp", timestamp}
+      ])
+
     case HTTPClient.get_binance(
            "/fapi/v1/userTrades",
-           %{symbol: symbol, timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -661,12 +876,16 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.future_account_balance(1663181938993)
+      BinanceFutures.future_account_balance()
   """
-  def future_account_balance(timestamp \\ nil) do
+  def future_account_balance(receive_window \\ nil, timestamp \\ nil) do
+    arguments =
+      %{}
+      |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
+
     case HTTPClient.get_binance(
            "/fapi/v2/balance",
-           %{timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -686,12 +905,20 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.notional_and_leverage_brackets(1663181938993)
+      BinanceFutures.get_notional_and_leverage_brackets()
   """
-  def notional_and_leverage_brackets(timestamp \\ nil) do
+  def get_notional_and_leverage_brackets(symbol \\ nil, receive_window \\ nil, timestamp \\ nil) do
+    arguments =
+      %{}
+      |> with_optional_args([
+        {"symbol", symbol},
+        {"recvWindow", receive_window},
+        {"timestamp", timestamp}
+      ])
+
     case HTTPClient.get_binance(
            "/fapi/v1/leverageBracket",
-           %{timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -709,12 +936,20 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.position_ADL_quantile_estimation(1663181938993)
+      BinanceFutures.get_position_ADL_quantile_estimation()
   """
-  def position_ADL_quantile_estimation(timestamp \\ nil) do
+  def get_position_ADL_quantile_estimation(symbol \\ nil, receive_window \\ nil, timestamp \\ nil) do
+    arguments =
+      %{}
+      |> with_optional_args([
+        {"symbol", symbol},
+        {"recvWindow", receive_window},
+        {"timestamp", timestamp}
+      ])
+
     case HTTPClient.get_binance(
            "/fapi/v1/adlQuantile",
-           %{timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -732,12 +967,19 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.user_commission_rate("BTCUSDT", 1663181938993)
+      BinanceFutures.get_user_commission_rate("BTCUSDT")
   """
-  def user_commission_rate(symbol, timestamp \\ nil) do
+  def get_user_commission_rate(symbol, receive_window \\ nil, timestamp \\ nil) do
+    arguments =
+      %{symbol: symbol}
+      |> with_optional_args([
+        {"recvWindow", receive_window},
+        {"timestamp", timestamp}
+      ])
+
     case HTTPClient.get_binance(
            "/fapi/v1/commissionRate",
-           %{symbol: symbol, timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -752,12 +994,16 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.change_multi_assets_mode("true", 1663181938993)
+      BinanceFutures.change_multi_assets_mode("true")
   """
-  def change_multi_assets_mode(multi_assets_margin, timestamp \\ nil) do
+  def change_multi_assets_mode(multi_assets_margin, receive_window \\ nil, timestamp \\ nil) do
+    arguments =
+      %{multiAssetsMargin: multi_assets_margin}
+      |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
+
     case HTTPClient.post_binance(
            "/fapi/v1/multiAssetsMargin",
-           %{multiAssetsMargin: multi_assets_margin, timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -772,12 +1018,16 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.get_current_multi_assets_mode(1663181938993)
+      BinanceFutures.get_current_multi_assets_mode()
   """
-  def get_current_multi_assets_mode(timestamp \\ nil) do
+  def get_current_multi_assets_mode(receive_window \\ nil, timestamp \\ nil) do
+    arguments =
+      %{}
+      |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
+
     case HTTPClient.get_binance(
            "/fapi/v1/multiAssetsMargin",
-           %{timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -794,19 +1044,23 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.new_order("BTCUSDT", "BUY", "LIMIT", 1, 10, 1663181938993)
+      BinanceFutures.new_order(%OrderInput{symbol: "BTCUSDT", side: "BUY", type: "MARKET", quantity: 1})
   """
-  def new_order(symbol, side, type, quantity, price, timestamp \\ nil) do
+  def new_order(
+        %Binance.Futures.OrderInput{} = order_input,
+        receive_window \\ nil,
+        timestamp \\ nil
+      ) do
+    arguments =
+      order_input
+      |> Map.from_struct()
+      |> Enum.filter(fn {_, v} -> !is_nil(v) end)
+      |> Enum.into(%{})
+      |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
+
     case HTTPClient.post_binance(
            "/fapi/v1/order",
-           %{
-             symbol: symbol,
-             side: side,
-             type: type,
-             quantity: quantity,
-             price: price,
-             timestamp: timestamp
-           },
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -821,12 +1075,27 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.query_order("BTCUSDT", 1663181938993)
+      BinanceFutures.get_order("BTCUSDT", 123456)
   """
-  def query_order(symbol, timestamp \\ nil) do
+  def get_order(
+        symbol,
+        order_id \\ nil,
+        orig_client_order_id \\ nil,
+        receive_window \\ nil,
+        timestamp \\ nil
+      ) do
+    arguments =
+      %{symbol: symbol}
+      |> with_optional_args([
+        {"orderId", order_id},
+        {"origClientOrderId", orig_client_order_id},
+        {"recvWindow", receive_window},
+        {"timestamp", timestamp}
+      ])
+
     case HTTPClient.get_binance(
            "/fapi/v1/order",
-           %{symbol: symbol, timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -841,12 +1110,20 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.cancel_order("BTCUSDT", 1663181938993)
+      BinanceFutures.cancel_order("BTCUSDT", 123456)
   """
-  def cancel_order(symbol, timestamp \\ nil) do
+  def cancel_order(symbol, order_id \\ nil, orig_client_order_id \\ nil, timestamp \\ nil) do
+    arguments =
+      %{symbol: symbol}
+      |> with_optional_args([
+        {"orderId", order_id},
+        {"origClientOrderId", orig_client_order_id},
+        {"timestamp", timestamp}
+      ])
+
     case HTTPClient.delete_binance(
            "/fapi/v1/order",
-           %{symbol: symbol, timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -861,12 +1138,25 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.place_multiple_orders([{type: "LIMIT", timeInForce: "GTC", symbol: "BTCUSDT", side: "BUY", price: "10001", quantity: "0.001"}], 1663181938993)
+      BinanceFutures.place_multiple_orders([{type: "LIMIT", timeInForce: "GTC", symbol: "BTCUSDT", side: "BUY", price: "10001", quantity: "0.001"}])
   """
-  def place_multiple_orders(batch_orders, timestamp \\ nil) do
+  def place_multiple_orders(batch_orders, receive_window \\ nil, timestamp \\ nil) do
+    batch_orders =
+      batch_orders
+      |> Enum.map(fn order ->
+        Enum.map(
+          order,
+          fn {k, v} -> {Recase.to_camel(k), v} end
+        )
+      end)
+
+    arguments =
+      %{batchOrders: batch_orders}
+      |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
+
     case HTTPClient.post_binance(
            "/fapi/v1/batchOrders",
-           %{batchOrders: batch_orders, timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -881,12 +1171,16 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.cancel_all_open_orders("BTCUSDT", 1663181938993)
+      BinanceFutures.cancel_all_open_orders("BTCUSDT")
   """
-  def cancel_all_open_orders(symbol, timestamp \\ nil) do
+  def cancel_all_open_orders(symbol, receive_window \\ nil, timestamp \\ nil) do
+    arguments =
+      %{symbol: symbol}
+      |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
+
     case HTTPClient.delete_binance(
            "/fapi/v1/allOpenOrders",
-           %{symbol: symbol, timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -901,12 +1195,16 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.auto_cancel_all_open_orders("BTCUSDT", 1000, 1663181938993)
+      BinanceFutures.auto_cancel_all_open_orders("BTCUSDT", 1000)
   """
-  def auto_cancel_all_open_orders(symbol, countdown_time, timestamp \\ nil) do
+  def auto_cancel_all_open_orders(symbol, countdown_time, receive_window \\ nil, timestamp \\ nil) do
+    arguments =
+      %{symbol: symbol, countdownTime: countdown_time}
+      |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
+
     case HTTPClient.post_binance(
            "/fapi/v1/countdownCancelAll",
-           %{symbol: symbol, countdownTime: countdown_time, timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -921,12 +1219,20 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.current_all_open_orders(1663181938993)
+      BinanceFutures.get_all_open_orders()
   """
-  def current_all_open_orders(timestamp \\ nil) do
+  def get_all_open_orders(symbol \\ nil, receive_window \\ nil, timestamp \\ nil) do
+    arguments =
+      %{}
+      |> with_optional_args([
+        {"symbol", symbol},
+        {"recvWindow", receive_window},
+        {"timestamp", timestamp}
+      ])
+
     case HTTPClient.get_binance(
            "/fapi/v1/openOrders",
-           %{timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -941,16 +1247,27 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.cancel_multiple_orders("BTCUSDT", ["my_id_1", "my_id_2"], 1663181938993)
+      BinanceFutures.cancel_multiple_orders("BTCUSDT", [12345, 56789])
   """
-  def cancel_multiple_orders(symbol, orig_client_order_id_list, timestamp \\ nil) do
+  def cancel_multiple_orders(
+        symbol,
+        order_id_list \\ nil,
+        orig_client_order_id_list \\ nil,
+        receive_window \\ nil,
+        timestamp \\ nil
+      ) do
+    arguments =
+      %{symbol: symbol}
+      |> with_optional_args([
+        {"orderIdList", order_id_list},
+        {"origClientOrderIdList", orig_client_order_id_list},
+        {"recvWindow", receive_window},
+        {"timestamp", timestamp}
+      ])
+
     case HTTPClient.delete_binance(
            "/fapi/v1/batchOrders",
-           %{
-             symbol: symbol,
-             origClientOrderIdList: orig_client_order_id_list,
-             timestamp: timestamp
-           },
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -974,12 +1291,27 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.query_current_open_order("BTCUSDT", 1663181938993)
+      BinanceFutures.get_current_open_order("BTCUSDT")
   """
-  def query_current_open_order(symbol, timestamp \\ nil) do
+  def get_current_open_order(
+        symbol,
+        order_id \\ nil,
+        orig_client_order_id \\ nil,
+        receive_window \\ nil,
+        timestamp \\ nil
+      ) do
+    arguments =
+      %{symbol: symbol}
+      |> with_optional_args([
+        {"orderId", order_id},
+        {"origClientOrderId", orig_client_order_id},
+        {"recvWindow", receive_window},
+        {"timestamp", timestamp}
+      ])
+
     case HTTPClient.get_binance(
            "/fapi/v1/openOrder",
-           %{symbol: symbol, timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -994,12 +1326,32 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.user_force_orders(1663181938993)
+      BinanceFutures.user_force_orders()
   """
-  def user_force_orders(timestamp \\ nil) do
+  def user_force_orders(
+        symbol \\ nil,
+        auto_close_type \\ nil,
+        limit \\ nil,
+        start_time \\ nil,
+        end_time \\ nil,
+        receive_window \\ nil,
+        timestamp \\ nil
+      ) do
+    arguments =
+      %{}
+      |> with_optional_args([
+        {"symbol", symbol},
+        {"autoCloseType", auto_close_type},
+        {"limit", limit},
+        {"startTime", start_time},
+        {"endTime", end_time},
+        {"receiveWindow", receive_window},
+        {"timestamp", timestamp}
+      ])
+
     case HTTPClient.get_binance(
            "/fapi/v1/forceOrders",
-           %{timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -1014,12 +1366,31 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.all_orders("BTCUSDT", 1663181938993)
+      BinanceFutures.all_orders("BTCUSDT")
   """
-  def all_orders(symbol, timestamp \\ nil) do
+  def all_orders(
+        symbol,
+        order_id \\ nil,
+        limit \\ 500,
+        start_time \\ nil,
+        end_time \\ nil,
+        receive_window \\ nil,
+        timestamp \\ nil
+      ) do
+    arguments =
+      %{symbol: symbol}
+      |> with_optional_args([
+        {"orderId", order_id},
+        {"limit", limit},
+        {"startTime", start_time},
+        {"endTime", end_time},
+        {"recvWindow", receive_window},
+        {"timestamp", timestamp}
+      ])
+
     case HTTPClient.get_binance(
            "/fapi/v1/allOrders",
-           %{symbol: symbol, timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -1034,12 +1405,16 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.change_initial_leverage("BTCUSDT", 10, 1663181938993)
+      BinanceFutures.change_initial_leverage("BTCUSDT", 10)
   """
-  def change_initial_leverage(symbol, leverage, timestamp \\ nil) do
+  def change_initial_leverage(symbol, leverage, receive_window \\ nil, timestamp \\ nil) do
+    arguments =
+      %{symbol: symbol, leverage: leverage}
+      |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
+
     case HTTPClient.post_binance(
            "/fapi/v1/leverage",
-           %{symbol: symbol, leverage: leverage, timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -1054,12 +1429,16 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.change_margin_type("BTCUSDT", "ISOLATED", 1663181938993)
+      BinanceFutures.change_margin_type("BTCUSDT", "ISOLATED")
   """
-  def change_margin_type(symbol, margin_type, timestamp \\ nil) do
+  def change_margin_type(symbol, margin_type, receive_window \\ nil, timestamp \\ nil) do
+    arguments =
+      %{symbol: symbol, marginType: margin_type}
+      |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
+
     case HTTPClient.post_binance(
            "/fapi/v1/marginType",
-           %{symbol: symbol, marginType: margin_type, timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -1074,12 +1453,16 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.change_position_mode("true", 1663181938993)
+      BinanceFutures.change_position_mode("true")
   """
-  def change_position_mode(dual_side_position, timestamp \\ nil) do
+  def change_position_mode(dual_side_position, receive_window \\ nil, timestamp \\ nil) do
+    arguments =
+      %{dualSidePosition: dual_side_position}
+      |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
+
     case HTTPClient.post_binance(
            "/fapi/v1/positionSide/dual",
-           %{dualSidePosition: dual_side_position, timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -1090,16 +1473,35 @@ defmodule Binance.Futures do
   end
 
   @doc """
-  Get Postion Margin Change History
+  Get Position Margin Change History
 
   ## Examples
 
-      BinanceFutures.get_postion_margin_change_history("BTCUSDT", 1663181938993)
+      BinanceFutures.get_postion_margin_change_history("BTCUSDT")
   """
-  def get_postion_margin_change_history(symbol, timestamp \\ nil) do
+  def get_position_margin_change_history(
+        symbol,
+        type \\ nil,
+        limit \\ nil,
+        start_time \\ nil,
+        end_time \\ nil,
+        receive_window \\ nil,
+        timestamp \\ nil
+      ) do
+    arguments =
+      %{symbol: symbol}
+      |> with_optional_args([
+        {"type", type},
+        {"limit", limit},
+        {"startTime", start_time},
+        {"endTime", end_time},
+        {"recvWindow", receive_window},
+        {"timestamp", timestamp}
+      ])
+
     case HTTPClient.get_binance(
            "/fapi/v1/positionMargin/history",
-           %{symbol: symbol, timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -1117,12 +1519,27 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.modify_isolated_position_margin("BTCUSDT", , "LIMIT", 1663181938993)
+      BinanceFutures.modify_isolated_position_margin("BTCUSDT", , "LIMIT")
   """
-  def modify_isolated_position_margin(symbol, amount, type, timestamp \\ nil) do
+  def modify_isolated_position_margin(
+        symbol,
+        amount,
+        type,
+        position_side \\ nil,
+        receive_window \\ nil,
+        timestamp \\ nil
+      ) do
+    arguments =
+      %{symbol: symbol, amount: amount, type: type}
+      |> with_optional_args([
+        {"positionSide", position_side},
+        {"recvWindow", receive_window},
+        {"timestamp", timestamp}
+      ])
+
     case HTTPClient.post_binance(
            "/fapi/v1/positionMargin",
-           %{symbol: symbol, amount: amount, type: type, timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -1137,12 +1554,16 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.change_multi_assets_mode_TRADE("true", 1663181938993)
+      BinanceFutures.change_multi_assets_mode_TRADE("true")
   """
-  def change_multi_assets_mode_TRADE(multi_assets_margin, timestamp \\ nil) do
+  def change_multi_assets_mode_TRADE(multi_assets_margin, receive_window \\ nil, timestamp \\ nil) do
+    arguments =
+      %{multiAssetsMargin: multi_assets_margin}
+      |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
+
     case HTTPClient.post_binance(
            "/fapi/v1/multiAssetsMargin",
-           %{multiAssetsMargin: multi_assets_margin, timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -1157,12 +1578,16 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.get_current_position_mode(1663181938993)
+      BinanceFutures.get_current_position_mode()
   """
-  def get_current_position_mode(timestamp \\ nil) do
+  def get_current_position_mode(receive_window \\ nil, timestamp \\ nil) do
+    arguments =
+      %{}
+      |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
+
     case HTTPClient.get_binance(
            "/fapi/v1/positionSide/dual",
-           %{timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -1177,12 +1602,24 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.user_API_trading_quantitative_rules_indicators(1663181938993)
+      BinanceFutures.get_trading_quantitative_rules_indicators()
   """
-  def user_API_trading_quantitative_rules_indicators(timestamp \\ nil) do
+  def get_trading_quantitative_rules_indicators(
+        symbol \\ nil,
+        receive_window \\ nil,
+        timestamp \\ nil
+      ) do
+    arguments =
+      %{}
+      |> with_optional_args([
+        {"symbol", symbol},
+        {"recvWindow", receive_window},
+        {"timestamp", timestamp}
+      ])
+
     case HTTPClient.get_binance(
            "/fapi/v1/apiTradingStatus",
-           %{timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -1197,12 +1634,16 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.get_current_multi_assets_mode_USER_DATA(1663181938993)
+      BinanceFutures.get_current_multi_assets_mode_USER_DATA()
   """
-  def get_current_multi_assets_mode_USER_DATA(timestamp \\ nil) do
+  def get_current_multi_assets_mode_USER_DATA(receive_window \\ nil, timestamp \\ nil) do
+    arguments =
+      %{}
+      |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
+
     case HTTPClient.get_binance(
            "/fapi/v1/multiAssetsMargin",
-           %{timestamp: timestamp},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -1279,10 +1720,14 @@ defmodule Binance.Futures do
 
       BinanceFutures.portfolio_margin_exchange_information()
   """
-  def portfolio_margin_exchange_information() do
+  def portfolio_margin_exchange_information(symbol \\ nil) do
+    arguments =
+      %{}
+      |> with_optional_args([{"symbol", symbol}])
+
     case HTTPClient.get_binance_unsigned(
            "/fapi/v1/pmExchangeInfo",
-           %{},
+           arguments,
            api_key: Application.get_env(:binance, :futures_api_key),
            secret_key: Application.get_env(:binance, :futures_secret_key),
            base_url: Application.get_env(:binance, :futures_end_point)
@@ -1290,5 +1735,21 @@ defmodule Binance.Futures do
       {:ok, data} -> {:ok, Binance.Futures.PortfolioMarginExchangeInfo.new(data)}
       {:error, error} -> {:error, error}
     end
+  end
+
+  defp with_optional_arg(args, optional_arg_name, optional_arg) do
+    args
+    |> Map.merge(
+      unless(is_nil(optional_arg),
+        do: %{optional_arg_name => optional_arg},
+        else: %{}
+      )
+    )
+  end
+
+  defp with_optional_args(args, optional_args) do
+    Enum.reduce(optional_args, args, fn {key, value}, acc ->
+      with_optional_arg(acc, key, value)
+    end)
   end
 end
