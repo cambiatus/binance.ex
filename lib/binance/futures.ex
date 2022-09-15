@@ -1,6 +1,12 @@
 defmodule Binance.Futures do
   alias Binance.Rest.HTTPClient
 
+  @futures_settings [
+    api_key: Application.compile_env(:binance, :futures_api_key),
+    secret_key: Application.compile_env(:binance, :futures_secret_key),
+    base_url: Application.compile_env(:binance, :futures_end_point)
+  ]
+
   @doc """
   Test Connectivity
 
@@ -11,13 +17,7 @@ defmodule Binance.Futures do
       BinanceFutures.ping()
   """
   def ping() do
-    case HTTPClient.get_binance_unsigned(
-           "/fapi/v1/ping/",
-           %{},
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance_unsigned("/fapi/v1/ping/", %{}, @futures_settings) do
       {:ok, _} -> :ok
       {:error, error} -> {:error, error}
     end
@@ -31,13 +31,7 @@ defmodule Binance.Futures do
       BinanceFutures.get_server_time()
   """
   def get_server_time() do
-    case HTTPClient.get_binance_unsigned(
-           "/fapi/v1/time",
-           %{},
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance_unsigned("/fapi/v1/time", %{}, @futures_settings) do
       {:ok, %{"serverTime" => time}} -> {:ok, time}
       {:error, error} -> {:error, error}
     end
@@ -51,13 +45,7 @@ defmodule Binance.Futures do
       BinanceFutures.get_exchange_info()
   """
   def get_exchange_info() do
-    case HTTPClient.get_binance_unsigned(
-           "/fapi/v1/exchangeInfo",
-           %{},
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance_unsigned("/fapi/v1/exchangeInfo", %{}, @futures_settings) do
       {:ok, data} -> {:ok, Binance.Futures.ExchangeInfo.new(data)}
       {:error, error} -> {:error, error}
     end
@@ -74,9 +62,7 @@ defmodule Binance.Futures do
     case HTTPClient.get_binance_unsigned(
            "/fapi/v1/depth",
            %{symbol: symbol, limit: limit},
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
+           @futures_settings
          ) do
       {:ok, data} -> {:ok, Binance.Futures.OrderBook.new(data)}
       {:error, error} -> {:error, error}
@@ -94,9 +80,7 @@ defmodule Binance.Futures do
     case HTTPClient.get_binance_unsigned(
            "/fapi/v1/trades",
            %{symbol: symbol, limit: limit},
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
+           @futures_settings
          ) do
       {:ok, data} -> {:ok, Enum.map(data, &Binance.Futures.Trade.new/1)}
       {:error, error} -> {:error, error}
@@ -123,9 +107,7 @@ defmodule Binance.Futures do
     case HTTPClient.get_binance_unsigned(
            "/fapi/v1/historicalTrades",
            arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
+           @futures_settings
          ) do
       {:ok, data} -> {:ok, Enum.map(data, &Binance.Futures.Trade.new/1)}
       {:error, error} -> {:error, error}
@@ -155,13 +137,7 @@ defmodule Binance.Futures do
         {"endTime", end_time}
       ])
 
-    case HTTPClient.get_binance_unsigned(
-           "/fapi/v1/aggTrades",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance_unsigned("/fapi/v1/aggTrades", arguments, @futures_settings) do
       {:ok, data} -> {:ok, Enum.map(data, &Binance.Futures.CompressedAggregateTrade.new/1)}
       {:error, error} -> {:error, error}
     end
@@ -191,13 +167,7 @@ defmodule Binance.Futures do
         {"endTime", end_time}
       ])
 
-    HTTPClient.get_binance_unsigned(
-      "/fapi/v1/klines",
-      arguments,
-      api_key: Application.get_env(:binance, :futures_api_key),
-      secret_key: Application.get_env(:binance, :futures_secret_key),
-      base_url: Application.get_env(:binance, :futures_end_point)
-    )
+    HTTPClient.get_binance_unsigned("/fapi/v1/klines", arguments, @futures_settings)
   end
 
   @doc """
@@ -224,13 +194,7 @@ defmodule Binance.Futures do
         {"endTime", end_time}
       ])
 
-    HTTPClient.get_binance_unsigned(
-      "/fapi/v1/indexPriceKlines",
-      arguments,
-      api_key: Application.get_env(:binance, :futures_api_key),
-      secret_key: Application.get_env(:binance, :futures_secret_key),
-      base_url: Application.get_env(:binance, :futures_end_point)
-    )
+    HTTPClient.get_binance_unsigned("/fapi/v1/indexPriceKlines", arguments, @futures_settings)
   end
 
   @doc """
@@ -258,13 +222,7 @@ defmodule Binance.Futures do
         {"endTime", end_time}
       ])
 
-    HTTPClient.get_binance_unsigned(
-      "/fapi/v1/continuousKlines",
-      arguments,
-      api_key: Application.get_env(:binance, :futures_api_key),
-      secret_key: Application.get_env(:binance, :futures_secret_key),
-      base_url: Application.get_env(:binance, :futures_end_point)
-    )
+    HTTPClient.get_binance_unsigned("/fapi/v1/continuousKlines", arguments, @futures_settings)
   end
 
   @doc """
@@ -288,13 +246,7 @@ defmodule Binance.Futures do
         {"endTime", end_time}
       ])
 
-    case HTTPClient.get_binance_unsigned(
-           "/fapi/v1/fundingRate",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance_unsigned("/fapi/v1/fundingRate", arguments, @futures_settings) do
       {:ok, data} ->
         {:ok, Enum.map(data, &Binance.Futures.FundingRateHistoryItem.new/1)}
 
@@ -319,13 +271,7 @@ defmodule Binance.Futures do
       %{}
       |> with_optional_arg("symbol", symbol)
 
-    case HTTPClient.get_binance_unsigned(
-           "/fapi/v1/premiumIndex",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance_unsigned("/fapi/v1/premiumIndex", arguments, @futures_settings) do
       {:ok, data} when is_list(data) -> {:ok, Enum.map(data, &Binance.Futures.MarkPrice.new/1)}
       {:ok, data} -> {:ok, Binance.Futures.MarkPrice.new(data)}
       {:error, error} -> {:error, error}
@@ -356,13 +302,7 @@ defmodule Binance.Futures do
         {"endTime", end_time}
       ])
 
-    HTTPClient.get_binance_unsigned(
-      "/fapi/v1/markPriceKlines",
-      arguments,
-      api_key: Application.get_env(:binance, :futures_api_key),
-      secret_key: Application.get_env(:binance, :futures_secret_key),
-      base_url: Application.get_env(:binance, :futures_end_point)
-    )
+    HTTPClient.get_binance_unsigned("/fapi/v1/markPriceKlines", arguments, @futures_settings)
   end
 
   @doc """
@@ -382,9 +322,7 @@ defmodule Binance.Futures do
     case HTTPClient.get_binance_unsigned(
            "/fapi/v1/ticker/bookTicker",
            arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
+           @futures_settings
          ) do
       {:ok, data} when is_list(data) ->
         {:ok, Enum.map(data, &Binance.Futures.SymbolOrderBookTicker.new/1)}
@@ -419,13 +357,7 @@ defmodule Binance.Futures do
       %{}
       |> with_optional_arg("symbol", symbol)
 
-    case HTTPClient.get_binance_unsigned(
-           "/fapi/v1/ticker/24hr",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance_unsigned("/fapi/v1/ticker/24hr", arguments, @futures_settings) do
       {:ok, data} when is_list(data) ->
         {:ok, Enum.map(data, &Binance.Futures.TickerPriceChangeStatistics.new/1)}
 
@@ -451,13 +383,7 @@ defmodule Binance.Futures do
       %{}
       |> with_optional_arg("symbol", symbol)
 
-    case HTTPClient.get_binance_unsigned(
-           "/fapi/v1/ticker/price",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance_unsigned("/fapi/v1/ticker/price", arguments, @futures_settings) do
       {:ok, data} when is_list(data) ->
         {:ok, Enum.map(data, &Binance.Futures.SymbolPriceTicker.new/1)}
 
@@ -482,9 +408,7 @@ defmodule Binance.Futures do
     case HTTPClient.get_binance_unsigned(
            "/fapi/v1/openInterest",
            %{symbol: symbol},
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
+           @futures_settings
          ) do
       {:ok, data} -> {:ok, Binance.Futures.OpenInterest.new(data)}
       {:error, error} -> {:error, error}
@@ -514,9 +438,7 @@ defmodule Binance.Futures do
     case HTTPClient.get_binance_unsigned(
            "/futures/data/topLongShortAccountRatio",
            arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
+           @futures_settings
          ) do
       {:ok, data} ->
         {:ok, Enum.map(data, &Binance.Futures.LongShortRatio.new/1)}
@@ -553,9 +475,7 @@ defmodule Binance.Futures do
     case HTTPClient.get_binance_unsigned(
            "/futures/data/openInterestHist",
            arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
+           @futures_settings
          ) do
       {:ok, data} -> {:ok, Enum.map(data, &Binance.Futures.OpenInterestStatistics.new/1)}
       {:error, error} -> {:error, error}
@@ -585,9 +505,7 @@ defmodule Binance.Futures do
     case HTTPClient.get_binance_unsigned(
            "/futures/data/topLongShortPositionRatio",
            arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
+           @futures_settings
          ) do
       {:ok, data} -> {:ok, Enum.map(data, &Binance.Futures.LongShortRatio.new/1)}
       {:error, error} -> {:error, error}
@@ -609,9 +527,7 @@ defmodule Binance.Futures do
     case HTTPClient.get_binance_unsigned(
            "/futures/data/takerlongshortRatio",
            arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
+           @futures_settings
          ) do
       {:ok, data} -> {:ok, Enum.map(data, &Binance.Futures.TakerBuySellVolume.new/1)}
       {:error, error} -> {:error, error}
@@ -635,9 +551,7 @@ defmodule Binance.Futures do
     case HTTPClient.get_binance_unsigned(
            "/futures/data/globalLongShortAccountRatio",
            arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
+           @futures_settings
          ) do
       {:ok, data} -> {:ok, Binance.Futures.LongShortRatio.new(data)}
       {:error, error} -> {:error, error}
@@ -662,13 +576,7 @@ defmodule Binance.Futures do
       %{symbol: symbol, interval: interval}
       |> with_optional_args([{"limit", limit}, {"startTime", start_time}, {"endTime", end_time}])
 
-    HTTPClient.get_binance_unsigned(
-      "/fapi/v1/lvtKlines",
-      arguments,
-      api_key: Application.get_env(:binance, :futures_api_key),
-      secret_key: Application.get_env(:binance, :futures_secret_key),
-      base_url: Application.get_env(:binance, :futures_end_point)
-    )
+    HTTPClient.get_binance_unsigned("/fapi/v1/lvtKlines", arguments, @futures_settings)
   end
 
   @doc """
@@ -683,13 +591,7 @@ defmodule Binance.Futures do
       %{}
       |> with_optional_arg("symbol", symbol)
 
-    case HTTPClient.get_binance_unsigned(
-           "/fapi/v1/indexInfo",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance_unsigned("/fapi/v1/indexInfo", arguments, @futures_settings) do
       {:ok, data} ->
         {:ok, Enum.map(data, &Binance.Futures.CompositeIndexSymbolInfo.new/1)}
 
@@ -710,13 +612,7 @@ defmodule Binance.Futures do
       %{}
       |> with_optional_arg("symbol", symbol)
 
-    case HTTPClient.get_binance_unsigned(
-           "/fapi/v1/assetIndex",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance_unsigned("/fapi/v1/assetIndex", arguments, @futures_settings) do
       {:ok, data} when is_list(data) ->
         {:ok, Enum.map(data, &Binance.Futures.MultiAssetsModeAssetIndex.new/1)}
 
@@ -740,13 +636,7 @@ defmodule Binance.Futures do
       %{}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.get_binance(
-           "/fapi/v2/account",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance("/fapi/v2/account", arguments, @futures_settings) do
       {:ok, data} -> Binance.Futures.Account.new(data)
       {:error, error} -> {:error, error}
     end
@@ -780,13 +670,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance(
-           "/fapi/v1/income",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance("/fapi/v1/income", arguments, @futures_settings) do
       {:ok, data} ->
         {:ok, Enum.map(data, &Binance.Futures.IncomeHistoryItem.new/1)}
 
@@ -811,13 +695,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance(
-           "/fapi/v2/positionRisk",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance("/fapi/v2/positionRisk", arguments, @futures_settings) do
       {:ok, data} when is_list(data) ->
         {:ok, Enum.map(data, &Binance.Futures.PositionInformation.new/1)}
 
@@ -856,13 +734,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance(
-           "/fapi/v1/userTrades",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance("/fapi/v1/userTrades", arguments, @futures_settings) do
       {:ok, data} ->
         {:ok, Enum.map(data, &Binance.Futures.AccountTrade.new/1)}
 
@@ -883,13 +755,7 @@ defmodule Binance.Futures do
       %{}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.get_binance(
-           "/fapi/v2/balance",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance("/fapi/v2/balance", arguments, @futures_settings) do
       {:ok, data} ->
         {:ok, Enum.map(data, &Binance.Futures.AccountBalance.new/1)}
 
@@ -916,13 +782,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance(
-           "/fapi/v1/leverageBracket",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance("/fapi/v1/leverageBracket", arguments, @futures_settings) do
       {:ok, data} ->
         {:ok, Enum.map(data, &Binance.Futures.NotionalAndLeverageBracket.new/1)}
 
@@ -947,13 +807,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance(
-           "/fapi/v1/adlQuantile",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance("/fapi/v1/adlQuantile", arguments, @futures_settings) do
       {:ok, data} ->
         {:ok, Enum.map(data, &Binance.Futures.PositionAdlQuantileEstimation.new/1)}
 
@@ -977,13 +831,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance(
-           "/fapi/v1/commissionRate",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance("/fapi/v1/commissionRate", arguments, @futures_settings) do
       {:ok, data} -> Binance.Futures.CommissionRate.new(data)
       {:error, error} -> {:error, error}
     end
@@ -1001,13 +849,7 @@ defmodule Binance.Futures do
       %{multiAssetsMargin: multi_assets_margin}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.post_binance(
-           "/fapi/v1/multiAssetsMargin",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.post_binance("/fapi/v1/multiAssetsMargin", arguments, @futures_settings) do
       {:ok, _} -> :ok
       {:error, error} -> {:error, error}
     end
@@ -1025,13 +867,7 @@ defmodule Binance.Futures do
       %{}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.get_binance(
-           "/fapi/v1/multiAssetsMargin",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance("/fapi/v1/multiAssetsMargin", arguments, @futures_settings) do
       {:ok, data} -> {:ok, Binance.Futures.MultiAssetsMargin.new(data)}
       {:error, error} -> {:error, error}
     end
@@ -1058,13 +894,7 @@ defmodule Binance.Futures do
       |> Enum.into(%{})
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.post_binance(
-           "/fapi/v1/order",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.post_binance("/fapi/v1/order", arguments, @futures_settings) do
       {:ok, data} -> {:ok, Binance.Futures.OrderResponse.new(data)}
       {:error, error} -> {:error, error}
     end
@@ -1093,13 +923,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance(
-           "/fapi/v1/order",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance("/fapi/v1/order", arguments, @futures_settings) do
       {:ok, data} -> {:ok, Binance.Futures.Order.new(data)}
       {:error, error} -> {:error, error}
     end
@@ -1121,13 +945,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.delete_binance(
-           "/fapi/v1/order",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.delete_binance("/fapi/v1/order", arguments, @futures_settings) do
       {:ok, data} -> {:ok, Binance.Futures.OrderResponse.new(data)}
       {:error, error} -> {:error, error}
     end
@@ -1154,13 +972,7 @@ defmodule Binance.Futures do
       %{batchOrders: batch_orders}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.post_binance(
-           "/fapi/v1/batchOrders",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.post_binance("/fapi/v1/batchOrders", arguments, @futures_settings) do
       {:ok, data} -> {:ok, Enum.map(data, &Binance.Futures.OrderResponse.new/1)}
       {:error, error} -> {:error, error}
     end
@@ -1178,13 +990,7 @@ defmodule Binance.Futures do
       %{symbol: symbol}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.delete_binance(
-           "/fapi/v1/allOpenOrders",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.delete_binance("/fapi/v1/allOpenOrders", arguments, @futures_settings) do
       {:ok, _} -> :ok
       {:error, error} -> {:error, error}
     end
@@ -1202,13 +1008,7 @@ defmodule Binance.Futures do
       %{symbol: symbol, countdownTime: countdown_time}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.post_binance(
-           "/fapi/v1/countdownCancelAll",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.post_binance("/fapi/v1/countdownCancelAll", arguments, @futures_settings) do
       {:ok, data} -> {:ok, Binance.Futures.AutoCancelAllOpenOrdersResponse.new(data)}
       {:error, error} -> {:error, error}
     end
@@ -1230,13 +1030,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance(
-           "/fapi/v1/openOrders",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance("/fapi/v1/openOrders", arguments, @futures_settings) do
       {:ok, data} -> {:ok, Enum.map(data, &Binance.Futures.Order.new/1)}
       {:error, error} -> {:error, error}
     end
@@ -1265,13 +1059,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.delete_binance(
-           "/fapi/v1/batchOrders",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.delete_binance("/fapi/v1/batchOrders", arguments, @futures_settings) do
       {:ok, data} ->
         {:ok,
          Enum.map(data, fn order ->
@@ -1309,13 +1097,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance(
-           "/fapi/v1/openOrder",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance("/fapi/v1/openOrder", arguments, @futures_settings) do
       {:ok, data} -> {:ok, Binance.Futures.Order.new(data)}
       {:error, error} -> {:error, error}
     end
@@ -1349,13 +1131,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance(
-           "/fapi/v1/forceOrders",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance("/fapi/v1/forceOrders", arguments, @futures_settings) do
       {:ok, data} -> {:ok, Enum.map(data, &Binance.Futures.Order.new/1)}
       {:error, error} -> {:error, error}
     end
@@ -1388,13 +1164,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance(
-           "/fapi/v1/allOrders",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance("/fapi/v1/allOrders", arguments, @futures_settings) do
       {:ok, data} -> {:ok, Enum.map(data, &Binance.Futures.Order.new/1)}
       {:error, error} -> {:error, error}
     end
@@ -1412,13 +1182,7 @@ defmodule Binance.Futures do
       %{symbol: symbol, leverage: leverage}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.post_binance(
-           "/fapi/v1/leverage",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.post_binance("/fapi/v1/leverage", arguments, @futures_settings) do
       {:ok, data} -> Binance.Futures.ChangeInitialLeverageResponse.new(data)
       {:error, error} -> {:error, error}
     end
@@ -1436,13 +1200,7 @@ defmodule Binance.Futures do
       %{symbol: symbol, marginType: margin_type}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.post_binance(
-           "/fapi/v1/marginType",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.post_binance("/fapi/v1/marginType", arguments, @futures_settings) do
       {:ok, _} -> :ok
       {:error, error} -> {:error, error}
     end
@@ -1460,13 +1218,7 @@ defmodule Binance.Futures do
       %{dualSidePosition: dual_side_position}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.post_binance(
-           "/fapi/v1/positionSide/dual",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.post_binance("/fapi/v1/positionSide/dual", arguments, @futures_settings) do
       {:ok, _} -> :ok
       {:error, error} -> {:error, error}
     end
@@ -1499,13 +1251,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance(
-           "/fapi/v1/positionMargin/history",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance("/fapi/v1/positionMargin/history", arguments, @futures_settings) do
       {:ok, data} ->
         {:ok, Enum.map(data, &Binance.Futures.PositionMarginChangeHistoryItem.new/1)}
 
@@ -1537,13 +1283,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.post_binance(
-           "/fapi/v1/positionMargin",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.post_binance("/fapi/v1/positionMargin", arguments, @futures_settings) do
       {:ok, _} -> :ok
       {:error, error} -> {:error, error}
     end
@@ -1561,13 +1301,7 @@ defmodule Binance.Futures do
       %{multiAssetsMargin: multi_assets_margin}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.post_binance(
-           "/fapi/v1/multiAssetsMargin",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.post_binance("/fapi/v1/multiAssetsMargin", arguments, @futures_settings) do
       {:ok, _} -> :ok
       {:error, error} -> {:error, error}
     end
@@ -1585,13 +1319,7 @@ defmodule Binance.Futures do
       %{}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.get_binance(
-           "/fapi/v1/positionSide/dual",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance("/fapi/v1/positionSide/dual", arguments, @futures_settings) do
       {:ok, data} -> {:ok, Binance.Futures.CurrentPositionMode.new(data)}
       {:error, error} -> {:error, error}
     end
@@ -1617,13 +1345,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance(
-           "/fapi/v1/apiTradingStatus",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance("/fapi/v1/apiTradingStatus", arguments, @futures_settings) do
       {:ok, data} -> {:ok, Binance.Futures.QuantitativeRulesIndicators.new(data)}
       {:error, error} -> {:error, error}
     end
@@ -1641,13 +1363,7 @@ defmodule Binance.Futures do
       %{}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.get_binance(
-           "/fapi/v1/multiAssetsMargin",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance("/fapi/v1/multiAssetsMargin", arguments, @futures_settings) do
       {:ok, data} -> {:ok, Binance.Futures.MultiAssetsMargin.new(data)}
       {:error, error} -> {:error, error}
     end
@@ -1661,13 +1377,7 @@ defmodule Binance.Futures do
       BinanceFutures.create_listen_key()
   """
   def create_listen_key() do
-    case HTTPClient.post_binance_unsigned(
-           "/fapi/v1/listenKey",
-           %{},
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.post_binance_unsigned("/fapi/v1/listenKey", %{}, @futures_settings) do
       {:ok, data} -> Binance.DataStream.new(data)
       {:error, error} -> {:error, error}
     end
@@ -1681,13 +1391,7 @@ defmodule Binance.Futures do
       BinanceFutures.keep_alive_listen_key()
   """
   def keep_alive_listen_key() do
-    case HTTPClient.put_binance_unsigned(
-           "/fapi/v1/listenKey",
-           %{},
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.put_binance_unsigned("/fapi/v1/listenKey", %{}, @futures_settings) do
       {:ok, _} -> :ok
       {:error, error} -> {:error, error}
     end
@@ -1701,13 +1405,7 @@ defmodule Binance.Futures do
       BinanceFutures.close_listen_key()
   """
   def close_listen_key() do
-    case HTTPClient.delete_binance_unsigned(
-           "/fapi/v1/listenKey",
-           %{},
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.delete_binance_unsigned("/fapi/v1/listenKey", %{}, @futures_settings) do
       {:ok, _} -> :ok
       {:error, error} -> {:error, error}
     end
@@ -1725,13 +1423,7 @@ defmodule Binance.Futures do
       %{}
       |> with_optional_args([{"symbol", symbol}])
 
-    case HTTPClient.get_binance_unsigned(
-           "/fapi/v1/pmExchangeInfo",
-           arguments,
-           api_key: Application.get_env(:binance, :futures_api_key),
-           secret_key: Application.get_env(:binance, :futures_secret_key),
-           base_url: Application.get_env(:binance, :futures_end_point)
-         ) do
+    case HTTPClient.get_binance_unsigned("/fapi/v1/pmExchangeInfo", arguments, @futures_settings) do
       {:ok, data} -> {:ok, Binance.Futures.PortfolioMarginExchangeInfo.new(data)}
       {:error, error} -> {:error, error}
     end
