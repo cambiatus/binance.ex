@@ -122,8 +122,15 @@ defmodule Binance.Rest.HTTPClient do
 
   defp parse_response_body({:ok, data}) do
     case data do
-      %{"code" => _c, "msg" => _m} = error -> {:error, error}
-      _ -> {:ok, data}
+      %{"code" => code, "msg" => _msg} = error ->
+        if code < 200 || code > 299 do
+          {:error, error}
+        else
+          {:ok, data}
+        end
+
+      _ ->
+        {:ok, data}
     end
   end
 
