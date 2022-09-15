@@ -174,9 +174,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.get_kline_candlestick_data("BTCUSDT", "1h")
+      BinanceFutures.get_klines("BTCUSDT", "1h")
   """
-  def get_kline_candlestick_data(
+  def get_klines(
         symbol,
         interval,
         limit \\ nil,
@@ -412,9 +412,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.get_ticker_price_change_statistics()
+      BinanceFutures.get_ticker()
   """
-  def get_ticker_price_change_statistics(symbol \\ nil) do
+  def get_ticker(symbol \\ nil) do
     arguments =
       %{}
       |> with_optional_arg("symbol", symbol)
@@ -444,9 +444,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.get_symbol_price_ticker()
+      BinanceFutures.get_ticker_price()
   """
-  def get_symbol_price_ticker(symbol \\ nil) do
+  def get_ticker_price(symbol \\ nil) do
     arguments =
       %{}
       |> with_optional_arg("symbol", symbol)
@@ -1366,9 +1366,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.all_orders("BTCUSDT")
+      BinanceFutures.get_all_orders("BTCUSDT")
   """
-  def all_orders(
+  def get_all_orders(
         symbol,
         order_id \\ nil,
         limit \\ 500,
@@ -1658,9 +1658,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.create_new_listen_key()
+      BinanceFutures.create_listen_key()
   """
-  def create_new_listen_key() do
+  def create_listen_key() do
     case HTTPClient.post_binance_unsigned(
            "/fapi/v1/listenKey",
            %{},
@@ -1678,9 +1678,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.renew_listen_key()
+      BinanceFutures.keep_alive_listen_key()
   """
-  def renew_listen_key() do
+  def keep_alive_listen_key() do
     case HTTPClient.put_binance_unsigned(
            "/fapi/v1/listenKey",
            %{},
@@ -1698,9 +1698,9 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.delete_listen_key()
+      BinanceFutures.close_listen_key()
   """
-  def delete_listen_key() do
+  def close_listen_key() do
     case HTTPClient.delete_binance_unsigned(
            "/fapi/v1/listenKey",
            %{},
