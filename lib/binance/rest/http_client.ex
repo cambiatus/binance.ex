@@ -138,12 +138,6 @@ defmodule Binance.Rest.HTTPClient do
     {:error, {:poison_decode_error, err}}
   end
 
-  # TODO: remove when we require OTP 22.1
-  if Code.ensure_loaded?(:crypto) and function_exported?(:crypto, :mac, 4) do
-    defp generate_signature(digest, key, argument_string),
-      do: :crypto.mac(:hmac, digest, key, argument_string)
-  else
-    defp generate_signature(digest, key, argument_string),
-      do: :crypto.hmac(digest, key, argument_string)
-  end
+  defp generate_signature(digest, key, argument_string),
+    do: :crypto.mac(:hmac, digest, key, argument_string)
 end
