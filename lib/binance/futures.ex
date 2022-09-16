@@ -10,7 +10,7 @@ defmodule Binance.Futures do
 
       BinanceFutures.ping()
   """
-  def ping(), do: HTTPClient.get_binance_unsigned("/fapi/v1/ping/", %{})
+  def ping(), do: HTTPClient.get_binance_unsigned("/fapi/v1/ping/")
 
   @doc """
   Check Server Time
@@ -19,7 +19,7 @@ defmodule Binance.Futures do
 
       BinanceFutures.get_server_time()
   """
-  def get_server_time(), do: HTTPClient.get_binance_unsigned("/fapi/v1/time", %{})
+  def get_server_time(), do: HTTPClient.get_binance_unsigned("/fapi/v1/time")
 
   @doc """
   Exchange Information
@@ -28,7 +28,7 @@ defmodule Binance.Futures do
 
       BinanceFutures.get_exchange_info()
   """
-  def get_exchange_info(), do: HTTPClient.get_binance_unsigned("/fapi/v1/exchangeInfo", %{})
+  def get_exchange_info(), do: HTTPClient.get_binance_unsigned("/fapi/v1/exchangeInfo")
 
   @doc """
   Order Book
@@ -1088,7 +1088,7 @@ defmodule Binance.Futures do
 
       BinanceFutures.create_listen_key()
   """
-  def create_listen_key(), do: HTTPClient.post_binance_unsigned("/fapi/v1/listenKey", %{})
+  def create_listen_key(), do: HTTPClient.post_binance_unsigned("/fapi/v1/listenKey")
 
   @doc """
   Renew Listen Key
@@ -1097,7 +1097,7 @@ defmodule Binance.Futures do
 
       BinanceFutures.keep_alive_listen_key()
   """
-  def keep_alive_listen_key(), do: HTTPClient.put_binance_unsigned("/fapi/v1/listenKey", %{})
+  def keep_alive_listen_key(), do: HTTPClient.put_binance_unsigned("/fapi/v1/listenKey")
 
   @doc """
   Delete Listen Key
@@ -1106,7 +1106,7 @@ defmodule Binance.Futures do
 
       BinanceFutures.close_listen_key()
   """
-  def close_listen_key(), do: HTTPClient.delete_binance_unsigned("/fapi/v1/listenKey", %{})
+  def close_listen_key(), do: HTTPClient.delete_binance_unsigned("/fapi/v1/listenKey")
 
   @doc """
   Portfolio Margin Exchange Information
