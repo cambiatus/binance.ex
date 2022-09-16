@@ -10,12 +10,7 @@ defmodule Binance.Futures do
 
       BinanceFutures.ping()
   """
-  def ping() do
-    case HTTPClient.get_binance_unsigned("/fapi/v1/ping/", %{}) do
-      {:ok, _} -> :ok
-      {:error, error} -> {:error, error}
-    end
-  end
+  def ping(), do: HTTPClient.get_binance_unsigned("/fapi/v1/ping/", %{})
 
   @doc """
   Check Server Time
@@ -24,12 +19,7 @@ defmodule Binance.Futures do
 
       BinanceFutures.get_server_time()
   """
-  def get_server_time() do
-    case HTTPClient.get_binance_unsigned("/fapi/v1/time", %{}) do
-      {:ok, %{"serverTime" => time}} -> {:ok, time}
-      {:error, error} -> {:error, error}
-    end
-  end
+  def get_server_time(), do: HTTPClient.get_binance_unsigned("/fapi/v1/time", %{})
 
   @doc """
   Exchange Information
@@ -38,12 +28,7 @@ defmodule Binance.Futures do
 
       BinanceFutures.get_exchange_info()
   """
-  def get_exchange_info() do
-    case HTTPClient.get_binance_unsigned("/fapi/v1/exchangeInfo", %{}) do
-      {:ok, data} -> {:ok, Binance.Futures.ExchangeInfo.new(data)}
-      {:error, error} -> {:error, error}
-    end
-  end
+  def get_exchange_info(), do: HTTPClient.get_binance_unsigned("/fapi/v1/exchangeInfo", %{})
 
   @doc """
   Order Book
@@ -52,12 +37,8 @@ defmodule Binance.Futures do
 
       BinanceFutures.get_order_book("BTCUSDT")
   """
-  def get_order_book(symbol, limit \\ 500) do
-    case HTTPClient.get_binance_unsigned("/fapi/v1/depth", %{symbol: symbol, limit: limit}) do
-      {:ok, data} -> {:ok, Binance.Futures.OrderBook.new(data)}
-      {:error, error} -> {:error, error}
-    end
-  end
+  def get_order_book(symbol, limit \\ 500),
+    do: HTTPClient.get_binance_unsigned("/fapi/v1/depth", %{symbol: symbol, limit: limit})
 
   @doc """
   Recent Trades List
@@ -66,12 +47,8 @@ defmodule Binance.Futures do
 
       BinanceFutures.get_recent_trades_list("BTCUSDT")
   """
-  def get_recent_trades_list(symbol, limit \\ 500) do
-    case HTTPClient.get_binance_unsigned("/fapi/v1/trades", %{symbol: symbol, limit: limit}) do
-      {:ok, data} -> {:ok, Enum.map(data, &Binance.Futures.Trade.new/1)}
-      {:error, error} -> {:error, error}
-    end
-  end
+  def get_recent_trades_list(symbol, limit \\ 500),
+    do: HTTPClient.get_binance_unsigned("/fapi/v1/trades", %{symbol: symbol, limit: limit})
 
   @doc """
   Old Trades Lookup (MARKET_DATA)
@@ -90,10 +67,7 @@ defmodule Binance.Futures do
       }
       |> with_optional_arg("fromId", from_id)
 
-    case HTTPClient.get_binance_unsigned("/fapi/v1/historicalTrades", arguments) do
-      {:ok, data} -> {:ok, Enum.map(data, &Binance.Futures.Trade.new/1)}
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.get_binance_unsigned("/fapi/v1/historicalTrades", arguments)
   end
 
   @doc """
@@ -119,10 +93,7 @@ defmodule Binance.Futures do
         {"endTime", end_time}
       ])
 
-    case HTTPClient.get_binance_unsigned("/fapi/v1/aggTrades", arguments) do
-      {:ok, data} -> {:ok, Enum.map(data, &Binance.Futures.CompressedAggregateTrade.new/1)}
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.get_binance_unsigned("/fapi/v1/aggTrades", arguments)
   end
 
   @doc """
@@ -228,13 +199,7 @@ defmodule Binance.Futures do
         {"endTime", end_time}
       ])
 
-    case HTTPClient.get_binance_unsigned("/fapi/v1/fundingRate", arguments) do
-      {:ok, data} ->
-        {:ok, Enum.map(data, &Binance.Futures.FundingRateHistoryItem.new/1)}
-
-      {:error, error} ->
-        {:error, error}
-    end
+    HTTPClient.get_binance_unsigned("/fapi/v1/fundingRate", arguments)
   end
 
   @doc """
@@ -253,11 +218,7 @@ defmodule Binance.Futures do
       %{}
       |> with_optional_arg("symbol", symbol)
 
-    case HTTPClient.get_binance_unsigned("/fapi/v1/premiumIndex", arguments) do
-      {:ok, data} when is_list(data) -> {:ok, Enum.map(data, &Binance.Futures.MarkPrice.new/1)}
-      {:ok, data} -> {:ok, Binance.Futures.MarkPrice.new(data)}
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.get_binance_unsigned("/fapi/v1/premiumIndex", arguments)
   end
 
   @doc """
@@ -301,16 +262,7 @@ defmodule Binance.Futures do
       %{}
       |> with_optional_arg("symbol", symbol)
 
-    case HTTPClient.get_binance_unsigned("/fapi/v1/ticker/bookTicker", arguments) do
-      {:ok, data} when is_list(data) ->
-        {:ok, Enum.map(data, &Binance.Futures.SymbolOrderBookTicker.new/1)}
-
-      {:ok, data} ->
-        {:ok, Binance.Futures.SymbolOrderBookTicker.new(data)}
-
-      {:error, error} ->
-        {:error, error}
-    end
+    HTTPClient.get_binance_unsigned("/fapi/v1/ticker/bookTicker", arguments)
   end
 
   @doc """
@@ -335,16 +287,7 @@ defmodule Binance.Futures do
       %{}
       |> with_optional_arg("symbol", symbol)
 
-    case HTTPClient.get_binance_unsigned("/fapi/v1/ticker/24hr", arguments) do
-      {:ok, data} when is_list(data) ->
-        {:ok, Enum.map(data, &Binance.Futures.TickerPriceChangeStatistics.new/1)}
-
-      {:ok, data} ->
-        {:ok, Binance.Futures.TickerPriceChangeStatistics.new(data)}
-
-      {:error, error} ->
-        {:error, error}
-    end
+    HTTPClient.get_binance_unsigned("/fapi/v1/ticker/24hr", arguments)
   end
 
   @doc """
@@ -361,16 +304,7 @@ defmodule Binance.Futures do
       %{}
       |> with_optional_arg("symbol", symbol)
 
-    case HTTPClient.get_binance_unsigned("/fapi/v1/ticker/price", arguments) do
-      {:ok, data} when is_list(data) ->
-        {:ok, Enum.map(data, &Binance.Futures.SymbolPriceTicker.new/1)}
-
-      {:ok, data} ->
-        {:ok, Binance.Futures.SymbolPriceTicker.new(data)}
-
-      {:error, error} ->
-        {:error, error}
-    end
+    HTTPClient.get_binance_unsigned("/fapi/v1/ticker/price", arguments)
   end
 
   @doc """
@@ -382,12 +316,8 @@ defmodule Binance.Futures do
 
       BinanceFutures.get_open_interest("BTCUSDT")
   """
-  def get_open_interest(symbol) do
-    case HTTPClient.get_binance_unsigned("/fapi/v1/openInterest", %{symbol: symbol}) do
-      {:ok, data} -> {:ok, Binance.Futures.OpenInterest.new(data)}
-      {:error, error} -> {:error, error}
-    end
-  end
+  def get_open_interest(symbol),
+    do: HTTPClient.get_binance_unsigned("/fapi/v1/openInterest", %{symbol: symbol})
 
   @doc """
   Top Trader Long/Short Ratio (Accounts)
@@ -409,13 +339,7 @@ defmodule Binance.Futures do
       %{symbol: symbol, period: period}
       |> with_optional_args([{"limit", limit}, {"startTime", start_time}, {"endTime", end_time}])
 
-    case HTTPClient.get_binance_unsigned("/futures/data/topLongShortAccountRatio", arguments) do
-      {:ok, data} ->
-        {:ok, Enum.map(data, &Binance.Futures.LongShortRatio.new/1)}
-
-      {:error, error} ->
-        {:error, error}
-    end
+    HTTPClient.get_binance_unsigned("/futures/data/topLongShortAccountRatio", arguments)
   end
 
   @doc """
@@ -442,10 +366,7 @@ defmodule Binance.Futures do
         {"endTime", end_time}
       ])
 
-    case HTTPClient.get_binance_unsigned("/futures/data/openInterestHist", arguments) do
-      {:ok, data} -> {:ok, Enum.map(data, &Binance.Futures.OpenInterestStatistics.new/1)}
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.get_binance_unsigned("/futures/data/openInterestHist", arguments)
   end
 
   @doc """
@@ -468,10 +389,7 @@ defmodule Binance.Futures do
       %{symbol: symbol, period: period}
       |> with_optional_args([{"limit", limit}, {"startTime", start_time}, {"endTime", end_time}])
 
-    case HTTPClient.get_binance_unsigned("/futures/data/topLongShortPositionRatio", arguments) do
-      {:ok, data} -> {:ok, Enum.map(data, &Binance.Futures.LongShortRatio.new/1)}
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.get_binance_unsigned("/futures/data/topLongShortPositionRatio", arguments)
   end
 
   @doc """
@@ -486,10 +404,7 @@ defmodule Binance.Futures do
       %{symbol: symbol, period: period}
       |> with_optional_args([{"limit", limit}, {"startTime", start_time}, {"endTime", end_time}])
 
-    case HTTPClient.get_binance_unsigned("/futures/data/takerlongshortRatio", arguments) do
-      {:ok, data} -> {:ok, Enum.map(data, &Binance.Futures.TakerBuySellVolume.new/1)}
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.get_binance_unsigned("/futures/data/takerlongshortRatio", arguments)
   end
 
   @doc """
@@ -506,10 +421,7 @@ defmodule Binance.Futures do
       %{symbol: symbol, period: period}
       |> with_optional_args([{"limit", limit}, {"startTime", start_time}, {"endTime", end_time}])
 
-    case HTTPClient.get_binance_unsigned("/futures/data/globalLongShortAccountRatio", arguments) do
-      {:ok, data} -> {:ok, Binance.Futures.LongShortRatio.new(data)}
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.get_binance_unsigned("/futures/data/globalLongShortAccountRatio", arguments)
   end
 
   @doc """
@@ -545,13 +457,7 @@ defmodule Binance.Futures do
       %{}
       |> with_optional_arg("symbol", symbol)
 
-    case HTTPClient.get_binance_unsigned("/fapi/v1/indexInfo", arguments) do
-      {:ok, data} ->
-        {:ok, Enum.map(data, &Binance.Futures.CompositeIndexSymbolInfo.new/1)}
-
-      {:error, error} ->
-        {:error, error}
-    end
+    HTTPClient.get_binance_unsigned("/fapi/v1/indexInfo", arguments)
   end
 
   @doc """
@@ -566,16 +472,7 @@ defmodule Binance.Futures do
       %{}
       |> with_optional_arg("symbol", symbol)
 
-    case HTTPClient.get_binance_unsigned("/fapi/v1/assetIndex", arguments) do
-      {:ok, data} when is_list(data) ->
-        {:ok, Enum.map(data, &Binance.Futures.MultiAssetsModeAssetIndex.new/1)}
-
-      {:ok, data} ->
-        {:ok, Binance.Futures.MultiAssetsModeAssetIndex.new(data)}
-
-      {:error, error} ->
-        {:error, error}
-    end
+    HTTPClient.get_binance_unsigned("/fapi/v1/assetIndex", arguments)
   end
 
   @doc """
@@ -590,10 +487,7 @@ defmodule Binance.Futures do
       %{}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.get_binance("/fapi/v2/account", arguments) do
-      {:ok, data} -> Binance.Futures.Account.new(data)
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.get_binance("/fapi/v2/account", arguments)
   end
 
   @doc """
@@ -624,13 +518,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance("/fapi/v1/income", arguments) do
-      {:ok, data} ->
-        {:ok, Enum.map(data, &Binance.Futures.IncomeHistoryItem.new/1)}
-
-      {:error, error} ->
-        {:error, error}
-    end
+    HTTPClient.get_binance("/fapi/v1/income", arguments)
   end
 
   @doc """
@@ -649,16 +537,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance("/fapi/v2/positionRisk", arguments) do
-      {:ok, data} when is_list(data) ->
-        {:ok, Enum.map(data, &Binance.Futures.PositionInformation.new/1)}
-
-      {:ok, data} ->
-        {:ok, Binance.Futures.PositionInformation.new(data)}
-
-      {:error, error} ->
-        {:error, error}
-    end
+    HTTPClient.get_binance("/fapi/v2/positionRisk", arguments)
   end
 
   @doc """
@@ -688,13 +567,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance("/fapi/v1/userTrades", arguments) do
-      {:ok, data} ->
-        {:ok, Enum.map(data, &Binance.Futures.AccountTrade.new/1)}
-
-      {:error, error} ->
-        {:error, error}
-    end
+    HTTPClient.get_binance("/fapi/v1/userTrades", arguments)
   end
 
   @doc """
@@ -709,13 +582,7 @@ defmodule Binance.Futures do
       %{}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.get_binance("/fapi/v2/balance", arguments) do
-      {:ok, data} ->
-        {:ok, Enum.map(data, &Binance.Futures.AccountBalance.new/1)}
-
-      {:error, error} ->
-        {:error, error}
-    end
+    HTTPClient.get_binance("/fapi/v2/balance", arguments)
   end
 
   @doc """
@@ -736,13 +603,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance("/fapi/v1/leverageBracket", arguments) do
-      {:ok, data} ->
-        {:ok, Enum.map(data, &Binance.Futures.NotionalAndLeverageBracket.new/1)}
-
-      {:error, error} ->
-        {:error, error}
-    end
+    HTTPClient.get_binance("/fapi/v1/leverageBracket", arguments)
   end
 
   @doc """
@@ -761,13 +622,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance("/fapi/v1/adlQuantile", arguments) do
-      {:ok, data} ->
-        {:ok, Enum.map(data, &Binance.Futures.PositionAdlQuantileEstimation.new/1)}
-
-      {:error, error} ->
-        {:error, error}
-    end
+    HTTPClient.get_binance("/fapi/v1/adlQuantile", arguments)
   end
 
   @doc """
@@ -785,10 +640,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance("/fapi/v1/commissionRate", arguments) do
-      {:ok, data} -> Binance.Futures.CommissionRate.new(data)
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.get_binance("/fapi/v1/commissionRate", arguments)
   end
 
   @doc """
@@ -803,10 +655,7 @@ defmodule Binance.Futures do
       %{multiAssetsMargin: multi_assets_margin}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.post_binance("/fapi/v1/multiAssetsMargin", arguments) do
-      {:ok, _} -> :ok
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.post_binance("/fapi/v1/multiAssetsMargin", arguments)
   end
 
   @doc """
@@ -821,10 +670,7 @@ defmodule Binance.Futures do
       %{}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.get_binance("/fapi/v1/multiAssetsMargin", arguments) do
-      {:ok, data} -> {:ok, Binance.Futures.MultiAssetsMargin.new(data)}
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.get_binance("/fapi/v1/multiAssetsMargin", arguments)
   end
 
   @doc """
@@ -848,10 +694,7 @@ defmodule Binance.Futures do
       |> Enum.into(%{})
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.post_binance("/fapi/v1/order", arguments) do
-      {:ok, data} -> {:ok, Binance.Futures.OrderResponse.new(data)}
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.post_binance("/fapi/v1/order", arguments)
   end
 
   @doc """
@@ -877,10 +720,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance("/fapi/v1/order", arguments) do
-      {:ok, data} -> {:ok, Binance.Futures.Order.new(data)}
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.get_binance("/fapi/v1/order", arguments)
   end
 
   @doc """
@@ -899,10 +739,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.delete_binance("/fapi/v1/order", arguments) do
-      {:ok, data} -> {:ok, Binance.Futures.OrderResponse.new(data)}
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.delete_binance("/fapi/v1/order", arguments)
   end
 
   @doc """
@@ -926,10 +763,7 @@ defmodule Binance.Futures do
       %{batchOrders: batch_orders}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.post_binance("/fapi/v1/batchOrders", arguments) do
-      {:ok, data} -> {:ok, Enum.map(data, &Binance.Futures.OrderResponse.new/1)}
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.post_binance("/fapi/v1/batchOrders", arguments)
   end
 
   @doc """
@@ -944,10 +778,7 @@ defmodule Binance.Futures do
       %{symbol: symbol}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.delete_binance("/fapi/v1/allOpenOrders", arguments) do
-      {:ok, _} -> :ok
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.delete_binance("/fapi/v1/allOpenOrders", arguments)
   end
 
   @doc """
@@ -962,10 +793,7 @@ defmodule Binance.Futures do
       %{symbol: symbol, countdownTime: countdown_time}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.post_binance("/fapi/v1/countdownCancelAll", arguments) do
-      {:ok, data} -> {:ok, Binance.Futures.AutoCancelAllOpenOrdersResponse.new(data)}
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.post_binance("/fapi/v1/countdownCancelAll", arguments)
   end
 
   @doc """
@@ -984,10 +812,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance("/fapi/v1/openOrders", arguments) do
-      {:ok, data} -> {:ok, Enum.map(data, &Binance.Futures.Order.new/1)}
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.get_binance("/fapi/v1/openOrders", arguments)
   end
 
   @doc """
@@ -1013,19 +838,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.delete_binance("/fapi/v1/batchOrders", arguments) do
-      {:ok, data} ->
-        {:ok,
-         Enum.map(data, fn order ->
-           case order do
-             %{"code" => code, "msg" => msg} -> %{code: code, msg: msg}
-             order -> Binance.Futures.OrderResponse.new(order)
-           end
-         end)}
-
-      {:error, error} ->
-        {:error, error}
-    end
+    HTTPClient.delete_binance("/fapi/v1/batchOrders", arguments)
   end
 
   @doc """
@@ -1051,10 +864,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance("/fapi/v1/openOrder", arguments) do
-      {:ok, data} -> {:ok, Binance.Futures.Order.new(data)}
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.get_binance("/fapi/v1/openOrder", arguments)
   end
 
   @doc """
@@ -1085,10 +895,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance("/fapi/v1/forceOrders", arguments) do
-      {:ok, data} -> {:ok, Enum.map(data, &Binance.Futures.Order.new/1)}
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.get_binance("/fapi/v1/forceOrders", arguments)
   end
 
   @doc """
@@ -1118,10 +925,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance("/fapi/v1/allOrders", arguments) do
-      {:ok, data} -> {:ok, Enum.map(data, &Binance.Futures.Order.new/1)}
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.get_binance("/fapi/v1/allOrders", arguments)
   end
 
   @doc """
@@ -1136,10 +940,7 @@ defmodule Binance.Futures do
       %{symbol: symbol, leverage: leverage}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.post_binance("/fapi/v1/leverage", arguments) do
-      {:ok, data} -> Binance.Futures.ChangeInitialLeverageResponse.new(data)
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.post_binance("/fapi/v1/leverage", arguments)
   end
 
   @doc """
@@ -1154,10 +955,7 @@ defmodule Binance.Futures do
       %{symbol: symbol, marginType: margin_type}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.post_binance("/fapi/v1/marginType", arguments) do
-      {:ok, _} -> :ok
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.post_binance("/fapi/v1/marginType", arguments)
   end
 
   @doc """
@@ -1172,10 +970,7 @@ defmodule Binance.Futures do
       %{dualSidePosition: dual_side_position}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.post_binance("/fapi/v1/positionSide/dual", arguments) do
-      {:ok, _} -> :ok
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.post_binance("/fapi/v1/positionSide/dual", arguments)
   end
 
   @doc """
@@ -1205,13 +1000,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance("/fapi/v1/positionMargin/history", arguments) do
-      {:ok, data} ->
-        {:ok, Enum.map(data, &Binance.Futures.PositionMarginChangeHistoryItem.new/1)}
-
-      {:error, error} ->
-        {:error, error}
-    end
+    HTTPClient.get_binance("/fapi/v1/positionMargin/history", arguments)
   end
 
   @doc """
@@ -1237,10 +1026,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.post_binance("/fapi/v1/positionMargin", arguments) do
-      {:ok, _} -> :ok
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.post_binance("/fapi/v1/positionMargin", arguments)
   end
 
   @doc """
@@ -1255,10 +1041,7 @@ defmodule Binance.Futures do
       %{multiAssetsMargin: multi_assets_margin}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.post_binance("/fapi/v1/multiAssetsMargin", arguments) do
-      {:ok, _} -> :ok
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.post_binance("/fapi/v1/multiAssetsMargin", arguments)
   end
 
   @doc """
@@ -1273,10 +1056,7 @@ defmodule Binance.Futures do
       %{}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.get_binance("/fapi/v1/positionSide/dual", arguments) do
-      {:ok, data} -> {:ok, Binance.Futures.CurrentPositionMode.new(data)}
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.get_binance("/fapi/v1/positionSide/dual", arguments)
   end
 
   @doc """
@@ -1299,10 +1079,7 @@ defmodule Binance.Futures do
         {"timestamp", timestamp}
       ])
 
-    case HTTPClient.get_binance("/fapi/v1/apiTradingStatus", arguments) do
-      {:ok, data} -> {:ok, Binance.Futures.QuantitativeRulesIndicators.new(data)}
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.get_binance("/fapi/v1/apiTradingStatus", arguments)
   end
 
   @doc """
@@ -1317,10 +1094,7 @@ defmodule Binance.Futures do
       %{}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
-    case HTTPClient.get_binance("/fapi/v1/multiAssetsMargin", arguments) do
-      {:ok, data} -> {:ok, Binance.Futures.MultiAssetsMargin.new(data)}
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.get_binance("/fapi/v1/multiAssetsMargin", arguments)
   end
 
   @doc """
@@ -1330,12 +1104,7 @@ defmodule Binance.Futures do
 
       BinanceFutures.create_listen_key()
   """
-  def create_listen_key() do
-    case HTTPClient.post_binance_unsigned("/fapi/v1/listenKey", %{}) do
-      {:ok, data} -> Binance.DataStream.new(data)
-      {:error, error} -> {:error, error}
-    end
-  end
+  def create_listen_key(), do: HTTPClient.post_binance_unsigned("/fapi/v1/listenKey", %{})
 
   @doc """
   Renew Listen Key
@@ -1344,12 +1113,7 @@ defmodule Binance.Futures do
 
       BinanceFutures.keep_alive_listen_key()
   """
-  def keep_alive_listen_key() do
-    case HTTPClient.put_binance_unsigned("/fapi/v1/listenKey", %{}) do
-      {:ok, _} -> :ok
-      {:error, error} -> {:error, error}
-    end
-  end
+  def keep_alive_listen_key(), do: HTTPClient.put_binance_unsigned("/fapi/v1/listenKey", %{})
 
   @doc """
   Delete Listen Key
@@ -1358,12 +1122,7 @@ defmodule Binance.Futures do
 
       BinanceFutures.close_listen_key()
   """
-  def close_listen_key() do
-    case HTTPClient.delete_binance_unsigned("/fapi/v1/listenKey", %{}) do
-      {:ok, _} -> :ok
-      {:error, error} -> {:error, error}
-    end
-  end
+  def close_listen_key(), do: HTTPClient.delete_binance_unsigned("/fapi/v1/listenKey", %{})
 
   @doc """
   Portfolio Margin Exchange Information
@@ -1377,10 +1136,7 @@ defmodule Binance.Futures do
       %{}
       |> with_optional_args([{"symbol", symbol}])
 
-    case HTTPClient.get_binance_unsigned("/fapi/v1/pmExchangeInfo", arguments) do
-      {:ok, data} -> {:ok, Binance.Futures.PortfolioMarginExchangeInfo.new(data)}
-      {:error, error} -> {:error, error}
-    end
+    HTTPClient.get_binance_unsigned("/fapi/v1/pmExchangeInfo", arguments)
   end
 
   defp with_optional_arg(args, optional_arg_name, optional_arg) do
