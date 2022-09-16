@@ -1,4 +1,4 @@
-defmodule Binance do
+defmodule Binance.Spot do
   alias Binance.Rest.Spot.HTTPClient
 
   # Server
