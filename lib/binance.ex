@@ -6,9 +6,7 @@ defmodule Binance do
   @doc """
   Pings binance API. Returns `{:ok, %{}}` if successful, `{:error, reason}` otherwise
   """
-  def ping() do
-    HTTPClient.get_binance_unsigned("/api/v3/ping")
-  end
+  def ping(), do: HTTPClient.get_binance_unsigned("/api/v3/ping")
 
   @doc """
   Get binance server time in unix epoch.
@@ -21,19 +19,9 @@ defmodule Binance do
   ```
 
   """
-  def get_server_time() do
-    case HTTPClient.get_binance_unsigned("/api/v3/time") do
-      {:ok, %{"serverTime" => time}} -> {:ok, time}
-      err -> err
-    end
-  end
+  def get_server_time(), do: HTTPClient.get_binance_unsigned("/api/v3/time")
 
-  def get_exchange_info() do
-    case HTTPClient.get_binance_unsigned("/api/v3/exchangeInfo") do
-      {:ok, data} -> {:ok, Binance.ExchangeInfo.new(data)}
-      err -> err
-    end
-  end
+  def get_exchange_info(), do: HTTPClient.get_binance_unsigned("/api/v3/exchangeInfo")
 
   @doc """
   Get historical trades
@@ -69,13 +57,7 @@ defmodule Binance do
         )
       )
 
-    case HTTPClient.get_binance_unsigned("/api/v3/historicalTrades", arguments) do
-      {:ok, data} ->
-        {:ok, Enum.map(data, &Binance.HistoricalTrade.new(&1))}
-
-      {:error, err} ->
-        err
-    end
+    HTTPClient.get_binance_unsigned("/api/v3/historicalTrades", arguments)
   end
 
   # Ticker
@@ -97,15 +79,7 @@ defmodule Binance do
      ...]}
   ```
   """
-  def get_all_prices() do
-    case HTTPClient.get_binance_unsigned("/api/v3/ticker/price") do
-      {:ok, data} ->
-        {:ok, Enum.map(data, &Binance.SymbolPrice.new(&1))}
-
-      err ->
-        err
-    end
-  end
+  def get_all_prices(), do: HTTPClient.get_binance_unsigned("/api/v3/ticker/price")
 
   @doc """
   Retrieves the current ticker information for the given trade pair.
@@ -133,12 +107,8 @@ defmodule Binance do
     end
   end
 
-  def get_ticker(symbol) when is_binary(symbol) do
-    case HTTPClient.get_binance_unsigned("/api/v3/ticker/24hr", %{symbol: symbol}) do
-      {:ok, data} -> {:ok, Binance.Ticker.new(data)}
-      err -> err
-    end
-  end
+  def get_ticker(symbol) when is_binary(symbol),
+    do: HTTPClient.get_binance_unsigned("/api/v3/ticker/24hr", %{symbol: symbol})
 
   @doc """
   Retrieves klines for a symbol, provided a given interval, e.g. "1h".
@@ -170,19 +140,13 @@ defmodule Binance do
    ```
   """
 
-  def get_klines(symbol, interval, limit \\ 500) when is_binary(symbol) do
-    case HTTPClient.get_binance_unsigned("/api/v3/klines", %{
-           symbol: symbol,
-           interval: interval,
-           limit: limit
-         }) do
-      {:ok, data} ->
-        {:ok, Enum.map(data, &Binance.Kline.new(&1))}
-
-      err ->
-        err
-    end
-  end
+  def get_klines(symbol, interval, limit \\ 500) when is_binary(symbol),
+    do:
+      HTTPClient.get_binance_unsigned("/api/v3/klines", %{
+        symbol: symbol,
+        interval: interval,
+        limit: limit
+      })
 
   @doc """
   Retrieves the bids & asks of the order book up to the depth for the given symbol
@@ -212,24 +176,15 @@ defmodule Binance do
   }
   ```
   """
-  def get_depth(symbol, limit) do
-    case HTTPClient.get_binance_unsigned("/api/v3/depth", %{symbol: symbol, limit: limit}) do
-      {:ok, data} -> {:ok, Binance.OrderBook.new(data)}
-      err -> err
-    end
-  end
+  def get_depth(symbol, limit),
+    do: HTTPClient.get_binance_unsigned("/api/v3/depth", %{symbol: symbol, limit: limit})
 
   @doc """
   Fetches system status.
 
   Returns `{:ok, %Binance.SystemStatus{}}` or `{:error, reason}`.
   """
-  def get_system_status() do
-    case HTTPClient.get_binance("/sapi/v1/system/status") do
-      {:ok, data} -> {:ok, Binance.SystemStatus.new(data)}
-      error -> error
-    end
-  end
+  def get_system_status(), do: HTTPClient.get_binance("/sapi/v1/system/status")
 
   # Account
 
@@ -243,18 +198,7 @@ defmodule Binance do
   Please read https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#account-information-user_data to understand API
   """
 
-  def get_account() do
-    api_key = Application.get_env(:binance, :api_key)
-    secret_key = Application.get_env(:binance, :secret_key)
-
-    case HTTPClient.get_binance("/api/v3/account", %{},
-           secret_key: secret_key,
-           api_key: api_key
-         ) do
-      {:ok, data} -> {:ok, Binance.Account.new(data)}
-      error -> error
-    end
-  end
+  def get_account(), do: HTTPClient.get_binance("/api/v3/account", %{})
 
   # User data streams
 
@@ -276,12 +220,7 @@ defmodule Binance do
   For more context please read https://github.com/binance/binance-spot-api-docs/blob/master/user-data-stream.md#create-a-listenkey
 
   """
-  def create_listen_key() do
-    case HTTPClient.post_binance_unsigned("/api/v3/userDataStream") do
-      {:ok, data} -> {:ok, Binance.DataStream.new(data)}
-      error -> error
-    end
-  end
+  def create_listen_key(), do: HTTPClient.post_binance_unsigned("/api/v3/userDataStream")
 
   @doc """
   Socket listen key expires after 30 minutes withouth a pong response, this
@@ -292,12 +231,8 @@ defmodule Binance do
   For more context please read https://github.com/binance/binance-spot-api-docs/blob/master/user-data-stream.md#pingkeep-alive-a-listenkey
 
   """
-  def keep_alive_listen_key(key) do
-    case HTTPClient.put_binance_unsigned("/api/v3/userDataStream", %{listenKey: key}) do
-      {:ok, data} -> {:ok, data}
-      error -> error
-    end
-  end
+  def keep_alive_listen_key(key),
+    do: HTTPClient.put_binance_unsigned("/api/v3/userDataStream", %{listenKey: key})
 
   @doc """
   Closes/disables the listen key. To be used when you stop listening to the
@@ -308,15 +243,12 @@ defmodule Binance do
   For more context please read https://github.com/binance/binance-spot-api-docs/blob/master/user-data-stream.md#close-a-listenkey
 
   """
-  def close_listen_key(key) do
-    case HTTPClient.delete_binance_unsigned(
-           "/api/v3/userDataStream",
-           %{"listenKey" => key}
-         ) do
-      {:ok, data} -> {:ok, data}
-      error -> error
-    end
-  end
+  def close_listen_key(key),
+    do:
+      HTTPClient.delete_binance_unsigned(
+        "/api/v3/userDataStream",
+        %{"listenKey" => key}
+      )
 
   # Order
 
@@ -377,13 +309,7 @@ defmodule Binance do
       |> Map.merge(unless(is_nil(time_in_force), do: %{timeInForce: time_in_force}, else: %{}))
       |> Map.merge(unless(is_nil(price), do: %{price: format_price(price)}, else: %{}))
 
-    case HTTPClient.post_binance("/api/v3/order", arguments) do
-      {:ok, %{"code" => code, "msg" => msg}} ->
-        {:error, {:binance_error, %{code: code, msg: msg}}}
-
-      data ->
-        data
-    end
+    HTTPClient.post_binance("/api/v3/order", arguments)
   end
 
   @doc """
@@ -414,10 +340,8 @@ defmodule Binance do
   def order_limit_buy(symbol, quantity, price, time_in_force)
       when is_binary(symbol)
       when is_number(quantity)
-      when is_number(price) do
-    create_order(symbol, "BUY", "LIMIT", quantity, price, time_in_force)
-    |> parse_order_response
-  end
+      when is_number(price),
+      do: create_order(symbol, "BUY", "LIMIT", quantity, price, time_in_force)
 
   @doc """
   Creates a new **limit** **sell** order
@@ -447,10 +371,8 @@ defmodule Binance do
   def order_limit_sell(symbol, quantity, price, time_in_force)
       when is_binary(symbol)
       when is_number(quantity)
-      when is_number(price) do
-    create_order(symbol, "SELL", "LIMIT", quantity, price, time_in_force)
-    |> parse_order_response
-  end
+      when is_number(price),
+      do: create_order(symbol, "SELL", "LIMIT", quantity, price, time_in_force)
 
   @doc """
   Creates a new **market** **buy** order
@@ -496,24 +418,6 @@ defmodule Binance do
       when is_binary(symbol)
       when is_number(quantity) do
     create_order(symbol, "SELL", "MARKET", quantity)
-  end
-
-  defp parse_order_response({:ok, response}) do
-    {:ok, Binance.OrderResponse.new(response)}
-  end
-
-  defp parse_order_response({
-         :error,
-         {
-           :binance_error,
-           %{code: -2010, msg: "Account has insufficient balance for requested action."} = reason
-         }
-       }) do
-    {:error, %Binance.InsufficientBalanceError{reason: reason}}
-  end
-
-  defp parse_order_response({:error, error}) do
-    {:error, error}
   end
 
   # Misc
@@ -599,18 +503,7 @@ defmodule Binance do
      ...]}
   ```
   """
-  def get_open_orders() do
-    api_key = Application.get_env(:binance, :api_key)
-    secret_key = Application.get_env(:binance, :secret_key)
-
-    case HTTPClient.get_binance("/api/v3/openOrders", %{},
-           secret_key: secret_key,
-           api_key: api_key
-         ) do
-      {:ok, data} -> {:ok, Enum.map(data, &Binance.Order.new(&1))}
-      err -> err
-    end
-  end
+  def get_open_orders(), do: HTTPClient.get_binance("/api/v3/openOrders", %{})
 
   def get_open_orders(%Binance.TradePair{} = symbol) do
     case find_symbol(symbol) do
@@ -619,18 +512,8 @@ defmodule Binance do
     end
   end
 
-  def get_open_orders(symbol) when is_binary(symbol) do
-    api_key = Application.get_env(:binance, :api_key)
-    secret_key = Application.get_env(:binance, :secret_key)
-
-    case HTTPClient.get_binance("/api/v3/openOrders", %{:symbol => symbol},
-           secret_key: secret_key,
-           api_key: api_key
-         ) do
-      {:ok, data} -> {:ok, Enum.map(data, &Binance.Order.new(&1))}
-      err -> err
-    end
-  end
+  def get_open_orders(symbol) when is_binary(symbol),
+    do: HTTPClient.get_binance("/api/v3/openOrders", %{:symbol => symbol})
 
   # Order
 
@@ -674,9 +557,6 @@ defmodule Binance do
       when is_binary(symbol)
       when is_integer(timestamp)
       when is_integer(order_id) or is_binary(orig_client_order_id) do
-    api_key = Application.get_env(:binance, :api_key)
-    secret_key = Application.get_env(:binance, :secret_key)
-
     arguments =
       %{
         symbol: symbol,
@@ -692,13 +572,7 @@ defmodule Binance do
       )
       |> Map.merge(unless(is_nil(recv_window), do: %{recvWindow: recv_window}, else: %{}))
 
-    case HTTPClient.get_binance("/api/v3/order", arguments,
-           secret_key: secret_key,
-           api_key: api_key
-         ) do
-      {:ok, data} -> {:ok, Binance.Order.new(data)}
-      err -> err
-    end
+    HTTPClient.get_binance("/api/v3/order", arguments)
   end
 
   @doc """
@@ -719,9 +593,18 @@ defmodule Binance do
         orig_client_order_id \\ nil,
         new_client_order_id \\ nil,
         recv_window \\ nil
-      ) do
-    case is_binary(symbol) do
-      true ->
+      )
+
+  def cancel_order(
+        symbol,
+        timestamp,
+        order_id,
+        orig_client_order_id,
+        new_client_order_id,
+        recv_window
+      )
+      when is_binary(symbol),
+      do:
         cancel_order_(
           symbol,
           timestamp,
@@ -731,21 +614,27 @@ defmodule Binance do
           recv_window
         )
 
-      false ->
-        case find_symbol(symbol) do
-          {:ok, binance_symbol} ->
-            cancel_order_(
-              binance_symbol,
-              timestamp,
-              order_id,
-              orig_client_order_id,
-              new_client_order_id,
-              recv_window
-            )
+  def cancel_order(
+        symbol,
+        timestamp,
+        order_id,
+        orig_client_order_id,
+        new_client_order_id,
+        recv_window
+      ) do
+    case find_symbol(symbol) do
+      {:ok, binance_symbol} ->
+        cancel_order_(
+          binance_symbol,
+          timestamp,
+          order_id,
+          orig_client_order_id,
+          new_client_order_id,
+          recv_window
+        )
 
-          e ->
-            e
-        end
+      e ->
+        e
     end
   end
 
@@ -760,9 +649,6 @@ defmodule Binance do
        when is_binary(symbol)
        when is_integer(timestamp)
        when is_integer(order_id) or is_binary(orig_client_order_id) do
-    api_key = Application.get_env(:binance, :api_key)
-    secret_key = Application.get_env(:binance, :secret_key)
-
     arguments =
       %{
         symbol: symbol,
@@ -784,12 +670,6 @@ defmodule Binance do
       )
       |> Map.merge(unless(is_nil(recv_window), do: %{recvWindow: recv_window}, else: %{}))
 
-    case HTTPClient.delete_binance("/api/v3/order", arguments,
-           secret_key: secret_key,
-           api_key: api_key
-         ) do
-      {:ok, data} -> {:ok, Binance.Order.new(data)}
-      err -> err
-    end
+    HTTPClient.delete_binance("/api/v3/order", arguments)
   end
 end
