@@ -680,18 +680,11 @@ defmodule Binance.Futures do
 
   ## Examples
 
-      BinanceFutures.new_order(%OrderInput{symbol: "BTCUSDT", side: "BUY", type: "MARKET", quantity: 1})
+      BinanceFutures.new_order({symbol: "BTCUSDT", side: "BUY", type: "MARKET", quantity: 1})
   """
-  def new_order(
-        %Binance.Futures.OrderInput{} = order_input,
-        receive_window \\ nil,
-        timestamp \\ nil
-      ) do
+  def new_order(order_input, receive_window \\ nil, timestamp \\ nil) do
     arguments =
       order_input
-      |> Map.from_struct()
-      |> Enum.filter(fn {_, v} -> !is_nil(v) end)
-      |> Enum.into(%{})
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
 
     HTTPClient.post_binance("/fapi/v1/order", arguments)
@@ -750,15 +743,6 @@ defmodule Binance.Futures do
       BinanceFutures.place_multiple_orders([{type: "LIMIT", timeInForce: "GTC", symbol: "BTCUSDT", side: "BUY", price: "10001", quantity: "0.001"}])
   """
   def place_multiple_orders(batch_orders, receive_window \\ nil, timestamp \\ nil) do
-    batch_orders =
-      batch_orders
-      |> Enum.map(fn order ->
-        Enum.map(
-          order,
-          fn {k, v} -> {Recase.to_camel(k), v} end
-        )
-      end)
-
     arguments =
       %{batchOrders: batch_orders}
       |> with_optional_args([{"recvWindow", receive_window}, {"timestamp", timestamp}])
