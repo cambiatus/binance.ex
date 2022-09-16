@@ -1,36 +1,26 @@
 defmodule Binance.Rest.HTTPClient do
-  @default_options [
-    secret_key: Application.compile_env(:binance, :secret_key),
-    api_key: Application.compile_env(:binance, :api_key),
-    base_url: Application.compile_env(:binance, :end_point)
-  ]
-
-  def get_binance(endpoint, params \\ %{}, options \\ []),
+  def get_binance(endpoint, params \\ %{}, options),
     do: make_signed_request(endpoint, :get, params, options)
 
-  def get_binance_unsigned(endpoint, params \\ %{}, options \\ []),
+  def get_binance_unsigned(endpoint, params \\ %{}, options),
     do: make_unsigned_request(endpoint, :get, params, options)
 
-  def delete_binance(endpoint, params \\ %{}, options \\ []),
+  def delete_binance(endpoint, params \\ %{}, options),
     do: make_signed_request(endpoint, :delete, params, options)
 
-  def delete_binance_unsigned(endpoint, params \\ %{}, options \\ []),
+  def delete_binance_unsigned(endpoint, params \\ %{}, options),
     do: make_unsigned_request(endpoint, :delete, params, options)
 
-  def post_binance(endpoint, params \\ %{}, options \\ []),
+  def post_binance(endpoint, params \\ %{}, options),
     do: make_signed_request(endpoint, :post, params, options, "")
 
-  def post_binance_unsigned(endpoint, params \\ %{}, options \\ []),
+  def post_binance_unsigned(endpoint, params \\ %{}, options),
     do: make_unsigned_request(endpoint, :post, params, options, "")
 
-  def put_binance_unsigned(endpoint, params \\ %{}, options \\ []),
+  def put_binance_unsigned(endpoint, params \\ %{}, options),
     do: make_unsigned_request(endpoint, :put, params, options, "")
 
   defp make_unsigned_request(endpoint, method, params, options, body \\ nil) do
-    options =
-      Keyword.merge(@default_options, options)
-      |> Enum.into(%{})
-
     headers = [{"X-MBX-APIKEY", options.api_key}]
 
     full_url = "#{options.base_url}#{endpoint}?#{URI.encode_query(params)}"
@@ -52,10 +42,6 @@ defmodule Binance.Rest.HTTPClient do
          options,
          body \\ nil
        ) do
-    options =
-      Keyword.merge(@default_options, options)
-      |> Enum.into(%{})
-
     case validate_credentials(options.secret_key, options.api_key) do
       {:error, _} = error ->
         error
