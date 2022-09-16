@@ -100,14 +100,7 @@ defmodule Binance do
       weighted_avg_price: "0.06946930"}}
   ```
   """
-  def get_ticker(%Binance.TradePair{} = symbol) do
-    case find_symbol(symbol) do
-      {:ok, binance_symbol} -> get_ticker(binance_symbol)
-      e -> e
-    end
-  end
-
-  def get_ticker(symbol) when is_binary(symbol),
+  def get_ticker(symbol),
     do: HTTPClient.get_binance_unsigned("/api/v3/ticker/24hr", %{symbol: symbol})
 
   @doc """
@@ -320,24 +313,6 @@ defmodule Binance do
   Returns `{:ok, %{}}` or `{:error, reason}`
   """
   def order_limit_buy(symbol, quantity, price, time_in_force \\ "GTC")
-
-  def order_limit_buy(
-        %Binance.TradePair{from: from, to: to} = symbol,
-        quantity,
-        price,
-        time_in_force
-      )
-      when is_number(quantity)
-      when is_number(price)
-      when is_binary(from)
-      when is_binary(to) do
-    case find_symbol(symbol) do
-      {:ok, binance_symbol} -> order_limit_buy(binance_symbol, quantity, price, time_in_force)
-      e -> e
-    end
-  end
-
-  def order_limit_buy(symbol, quantity, price, time_in_force)
       when is_binary(symbol)
       when is_number(quantity)
       when is_number(price),
@@ -351,24 +326,6 @@ defmodule Binance do
   Returns `{:ok, %{}}` or `{:error, reason}`
   """
   def order_limit_sell(symbol, quantity, price, time_in_force \\ "GTC")
-
-  def order_limit_sell(
-        %Binance.TradePair{from: from, to: to} = symbol,
-        quantity,
-        price,
-        time_in_force
-      )
-      when is_number(quantity)
-      when is_number(price)
-      when is_binary(from)
-      when is_binary(to) do
-    case find_symbol(symbol) do
-      {:ok, binance_symbol} -> order_limit_sell(binance_symbol, quantity, price, time_in_force)
-      e -> e
-    end
-  end
-
-  def order_limit_sell(symbol, quantity, price, time_in_force)
       when is_binary(symbol)
       when is_number(quantity)
       when is_number(price),
@@ -381,16 +338,6 @@ defmodule Binance do
 
   Returns `{:ok, %{}}` or `{:error, reason}`
   """
-  def order_market_buy(%Binance.TradePair{from: from, to: to} = symbol, quantity)
-      when is_number(quantity)
-      when is_binary(from)
-      when is_binary(to) do
-    case find_symbol(symbol) do
-      {:ok, binance_symbol} -> order_market_buy(binance_symbol, quantity)
-      e -> e
-    end
-  end
-
   def order_market_buy(symbol, quantity)
       when is_binary(symbol)
       when is_number(quantity) do
@@ -404,16 +351,6 @@ defmodule Binance do
 
   Returns `{:ok, %{}}` or `{:error, reason}`
   """
-  def order_market_sell(%Binance.TradePair{from: from, to: to} = symbol, quantity)
-      when is_number(quantity)
-      when is_binary(from)
-      when is_binary(to) do
-    case find_symbol(symbol) do
-      {:ok, binance_symbol} -> order_market_sell(binance_symbol, quantity)
-      e -> e
-    end
-  end
-
   def order_market_sell(symbol, quantity)
       when is_binary(symbol)
       when is_number(quantity) do
@@ -425,62 +362,6 @@ defmodule Binance do
   defp format_price(num) when is_float(num), do: :erlang.float_to_binary(num, [{:decimals, 8}])
   defp format_price(num) when is_integer(num), do: inspect(num)
   defp format_price(num) when is_binary(num), do: num
-
-  @doc """
-  Searches and normalizes the symbol as it is listed on binance.
-
-  To retrieve this information, a request to the binance API is done. The result is then **cached** to ensure the request is done only once.
-
-  Order of which symbol comes first, and case sensitivity does not matter.
-
-  Returns `{:ok, "SYMBOL"}` if successfully, or `{:error, reason}` otherwise.
-
-  ## Examples
-  These 3 calls will result in the same result string:
-  ```
-  find_symbol(%Binance.TradePair{from: "ETH", to: "REQ"})
-  ```
-  ```
-  find_symbol(%Binance.TradePair{from: "REQ", to: "ETH"})
-  ```
-  ```
-  find_symbol(%Binance.TradePair{from: "rEq", to: "eTH"})
-  ```
-
-  Result: `{:ok, "REQETH"}`
-
-  """
-  def find_symbol(%Binance.TradePair{from: from, to: to} = tp)
-      when is_binary(from)
-      when is_binary(to) do
-    case Binance.SymbolCache.get() do
-      # cache hit
-      {:ok, data} ->
-        from = String.upcase(from)
-        to = String.upcase(to)
-
-        found = Enum.filter(data, &Enum.member?([from <> to, to <> from], &1))
-
-        case Enum.count(found) do
-          1 -> {:ok, found |> List.first()}
-          0 -> {:error, :symbol_not_found}
-        end
-
-      # cache miss
-      {:error, :not_initialized} ->
-        case get_all_prices() do
-          {:ok, price_data} ->
-            price_data
-            |> Enum.map(fn x -> x.symbol end)
-            |> Binance.SymbolCache.store()
-
-            find_symbol(tp)
-
-          err ->
-            err
-        end
-    end
-  end
 
   # Open orders
 
@@ -505,14 +386,7 @@ defmodule Binance do
   """
   def get_open_orders(), do: HTTPClient.get_binance("/api/v3/openOrders", %{})
 
-  def get_open_orders(%Binance.TradePair{} = symbol) do
-    case find_symbol(symbol) do
-      {:ok, binance_symbol} -> get_open_orders(binance_symbol)
-      e -> e
-    end
-  end
-
-  def get_open_orders(symbol) when is_binary(symbol),
+  def get_open_orders(symbol),
     do: HTTPClient.get_binance("/api/v3/openOrders", %{:symbol => symbol})
 
   # Order
@@ -538,25 +412,6 @@ defmodule Binance do
         orig_client_order_id \\ nil,
         recv_window \\ nil
       ) do
-    case is_binary(symbol) do
-      true ->
-        fetch_order(symbol, timestamp, order_id, orig_client_order_id, recv_window)
-
-      false ->
-        case find_symbol(symbol) do
-          {:ok, binance_symbol} ->
-            fetch_order(binance_symbol, timestamp, order_id, orig_client_order_id, recv_window)
-
-          e ->
-            e
-        end
-    end
-  end
-
-  def fetch_order(symbol, timestamp, order_id, orig_client_order_id, recv_window)
-      when is_binary(symbol)
-      when is_integer(timestamp)
-      when is_integer(order_id) or is_binary(orig_client_order_id) do
     arguments =
       %{
         symbol: symbol,
@@ -593,62 +448,7 @@ defmodule Binance do
         orig_client_order_id \\ nil,
         new_client_order_id \\ nil,
         recv_window \\ nil
-      )
-
-  def cancel_order(
-        symbol,
-        timestamp,
-        order_id,
-        orig_client_order_id,
-        new_client_order_id,
-        recv_window
-      )
-      when is_binary(symbol),
-      do:
-        cancel_order_(
-          symbol,
-          timestamp,
-          order_id,
-          orig_client_order_id,
-          new_client_order_id,
-          recv_window
-        )
-
-  def cancel_order(
-        symbol,
-        timestamp,
-        order_id,
-        orig_client_order_id,
-        new_client_order_id,
-        recv_window
       ) do
-    case find_symbol(symbol) do
-      {:ok, binance_symbol} ->
-        cancel_order_(
-          binance_symbol,
-          timestamp,
-          order_id,
-          orig_client_order_id,
-          new_client_order_id,
-          recv_window
-        )
-
-      e ->
-        e
-    end
-  end
-
-  defp cancel_order_(
-         symbol,
-         timestamp,
-         order_id,
-         orig_client_order_id,
-         new_client_order_id,
-         recv_window
-       )
-       when is_binary(symbol)
-       when is_integer(timestamp)
-       when is_integer(order_id) or is_binary(orig_client_order_id) do
     arguments =
       %{
         symbol: symbol,
