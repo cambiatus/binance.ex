@@ -1,11 +1,14 @@
 # This file is responsible for configuring your application
 # and its dependencies with the aid of the Mix.Config module.
-use Mix.Config
+import Config
 
 config :binance,
   api_key: "",
   secret_key: "",
-  end_point: "https://api.binance.com"
+  end_point: "https://api.binance.com",
+  futures_api_key: "",
+  futures_secret_key: "",
+  futures_end_point: "https://fapi.binance.com"
 
 config :exvcr,
   filter_request_headers: [
